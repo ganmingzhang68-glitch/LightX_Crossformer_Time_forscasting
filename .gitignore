@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.idea/
+.vscode/
+outputs/
+data/
+*.log
+!artifacts/training_history.json

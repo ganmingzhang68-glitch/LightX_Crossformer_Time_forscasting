@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "description": "Only confirmed sensor fault sentinels or physically impossible bounds belong here. Training percentiles are diagnostics and are never clipping limits.",
+  "features": {}
+}
