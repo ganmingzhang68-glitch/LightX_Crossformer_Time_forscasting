@@ -22,7 +22,12 @@ def sql_identifier(value: str) -> str:
     return '"' + value.replace('"', '""') + '"'
 
 
-def build_wide(source: Path, destination: Path, features: list[str]) -> None:
+def build_wide(
+    source: Path,
+    destination: Path,
+    features: list[str],
+    boolean_features: list[str],
+) -> None:
     expressions = []
     for feature in features:
         expressions.append(
@@ -63,6 +68,36 @@ def build_wide(source: Path, destination: Path, features: list[str]) -> None:
             raise ValueError(
                 f"External device is missing {len(missing_features)} required features: "
                 f"{missing_features}"
+            )
+        type_rows = connection.execute(
+            f"SELECT DISTINCT field, value_type "
+            f"FROM read_parquet({sql_string(str(source))}) "
+            f"WHERE measurement = 'PLC-Sensors' AND field IN ({fields})"
+        ).fetchall()
+        types_by_feature: dict[str, set[str]] = {feature: set() for feature in features}
+        for field, value_type in type_rows:
+            types_by_feature[str(field)].add(str(value_type))
+        mixed_types = {
+            feature: sorted(types)
+            for feature, types in types_by_feature.items()
+            if len(types) != 1
+        }
+        boolean_set = set(boolean_features)
+        wrong_boolean = {
+            feature: sorted(types_by_feature[feature])
+            for feature in boolean_features
+            if types_by_feature[feature] != {"bool"}
+        }
+        wrong_continuous = {
+            feature: sorted(types_by_feature[feature])
+            for feature in features
+            if feature not in boolean_set and "bool" in types_by_feature[feature]
+        }
+        if mixed_types or wrong_boolean or wrong_continuous:
+            raise ValueError(
+                "External feature types do not match the training contract; "
+                f"mixed={mixed_types}, boolean={wrong_boolean}, "
+                f"continuous={wrong_continuous}"
             )
         connection.execute("SET threads TO 4")
         connection.execute(query)
@@ -159,7 +194,7 @@ def main() -> None:
     quality_rules = json.loads(args.quality_rules.read_text(encoding="utf-8")).get("features", {})
     with tempfile.TemporaryDirectory(prefix="lightx_crossformer_") as temporary:
         wide_path = Path(temporary) / "wide.parquet"
-        build_wide(source, wide_path, features)
+        build_wide(source, wide_path, features, boolean_features)
         wide = pd.read_parquet(wide_path)
     invalidated = apply_quality_rules(wide, quality_rules, features)
     prepared, segments = regularize(wide, features, boolean_features)

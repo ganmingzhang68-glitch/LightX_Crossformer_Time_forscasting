@@ -20,6 +20,7 @@
   "revin_affine": true,
   "residual_forecast": true,
   "boolean_threshold_physical": 0.5,
+  "checkpoint_sha256": "8365b802d2fef8bc8d5c54f7398ff74459cc1b987664ddf4db0ef0e8351aee11",
   "best_epoch": 45,
   "training_devices": ["01-X450-1", "02-X450-2", "03-X450-3"],
   "device_04_used_for_training_or_checkpoint_selection": false

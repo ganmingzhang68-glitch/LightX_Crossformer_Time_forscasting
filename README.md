@@ -32,6 +32,8 @@
 
 完整指标见 [`artifacts/final_metrics.json`](artifacts/final_metrics.json)，训练历史见 [`artifacts/training_history.json`](artifacts/training_history.json)。
 
+全部训练特征、固定顺序、类型划分和预处理规则见 [`FEATURES.md`](FEATURES.md)。
+
 ## 外部设备适用条件
 
 可以部署到其他设备，但需要满足以下条件：
@@ -57,6 +59,7 @@
 │   └── training_history.json
 ├── config/
 │   └── plc_feature_quality_rules.json
+├── FEATURES.md                    # 128个训练特征的完整说明
 ├── crossformer/
 │   └── model.py                # 精简、可独立加载权重的 Crossformer
 ├── prepare_influx.py           # Influx 长表 Parquet → 128 特征宽表
@@ -166,6 +169,8 @@ python predict.py \
 ```
 
 `--include-target` 会为已存在于输入文件中的未来点增加 `actual__特征名` 列，便于计算外部设备指标。部署到实时流时使用 `latest` 模式，不需要真实未来值。
+
+当预处理结果含有 `observed_mask` 时，`rolling` 模式会排除未来5个目标点中包含插值行的窗口，与训练阶段的验证口径保持一致；输入窗口本身仍允许包含预处理规则许可的单点插值。
 
 ## 固定模型参数
 

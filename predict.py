@@ -55,6 +55,11 @@ def make_windows(
     mode: str,
 ):
     values = frame[features].to_numpy(dtype=np.float32, copy=True)
+    observed = (
+        frame["observed_mask"].astype(bool).to_numpy(copy=True)
+        if "observed_mask" in frame.columns
+        else np.ones(len(frame), dtype=bool)
+    )
     if len(values) < sequence_length:
         return []
     if mode == "latest":
@@ -65,6 +70,11 @@ def make_windows(
     windows = []
     for start in starts:
         end = start + sequence_length
+        # Match validation-time scoring: a rolling forecast is included only
+        # when every target row is an original database timestamp. Context may
+        # contain the explicitly permitted one-point interpolation.
+        if mode == "rolling" and not observed[end : end + prediction_length].all():
+            continue
         targets = None
         if end + prediction_length <= len(values):
             targets = values[end : end + prediction_length]
