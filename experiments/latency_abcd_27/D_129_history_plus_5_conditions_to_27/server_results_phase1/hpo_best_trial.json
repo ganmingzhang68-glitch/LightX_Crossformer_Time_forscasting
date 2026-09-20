@@ -1,0 +1,830 @@
+{
+  "best_trial": 0,
+  "aggregate_objective": 0.6363718231991697,
+  "params": {
+    "d_model": 128,
+    "n_heads": 2,
+    "e_layers": 2,
+    "d_ff": 256,
+    "d_ff_multiplier": 2,
+    "factor": 5,
+    "dropout": 0.0,
+    "learning_rate": 0.00029068076540795856,
+    "weight_decay": 0.0,
+    "batch_size": 32,
+    "huber_delta": 2.0,
+    "continuous_loss_weight": 0.9,
+    "boolean_loss_weight": 0.09999999999999998,
+    "crossformer_seg_len": 15,
+    "revin_affine": true,
+    "use_revin": true,
+    "residual_forecast": true,
+    "condition_hidden": 32,
+    "condition_layers": 1,
+    "condition_dropout": 0.0,
+    "condition_embedding_dim": 4,
+    "condition_gate_init": 0.1
+  },
+  "fold_result": {
+    "trial": 0,
+    "aggregate_objective": 0.6363718231991697,
+    "mean_fold_objective": 0.6311254491932593,
+    "worst_fold_objective": 0.6521109452169014,
+    "fold_results": [
+      {
+        "fold": "fold_a",
+        "train_devices": [
+          "01-X450-1",
+          "02-X450-2"
+        ],
+        "validation_devices": [
+          "03-X450-3"
+        ],
+        "train_windows": 6000,
+        "validation_windows": 1500,
+        "train_windows_by_device": {
+          "01-X450-1": 3000,
+          "02-X450-2": 3000
+        },
+        "validation_windows_by_device": {
+          "03-X450-3": 1500
+        },
+        "best_epoch": 5,
+        "best_metrics": {
+          "objective_selected_27": 0.6521109452169014,
+          "forecast_points": 90000,
+          "continuous_relative_mse_vs_persistence": 0.6085594116327581,
+          "continuous_skill_vs_persistence": 0.39144058836724194,
+          "continuous_standardized_mae": 0.2398197628973349,
+          "boolean_active_macro_f1": 0.24626880975343077,
+          "persistence_boolean_active_macro_f1": 0.31276740476970577,
+          "active_boolean_feature_count": 5,
+          "metrics_by_feature": {
+            "H13压差(mBar)": {
+              "standardized_mae": 0.010426756919754875,
+              "persistence_standardized_mae": 0.012536670178174973,
+              "standardized_mse": 0.000193174571290611,
+              "persistence_standardized_mse": 0.00024734901568637376
+            },
+            "保护气体压力(Bar)": {
+              "standardized_mae": 0.16916941178191724,
+              "persistence_standardized_mae": 0.2074663619281873,
+              "standardized_mse": 0.12007606002949651,
+              "persistence_standardized_mse": 0.20789748459052781
+            },
+            "前螺旋扭矩(Nm)": {
+              "standardized_mae": 0.4919039956605631,
+              "persistence_standardized_mae": 0.6659383275719412,
+              "standardized_mse": 1.0637774310404609,
+              "persistence_standardized_mse": 1.409284995770972
+            },
+            "压缩空气压力(Bar)": {
+              "standardized_mae": 0.3846576664646344,
+              "persistence_standardized_mae": 0.39587918295754937,
+              "standardized_mse": 0.2986066113674462,
+              "persistence_standardized_mse": 0.32675810873068906
+            },
+            "后螺旋扭矩(Nm)": {
+              "standardized_mae": 0.6405304792876666,
+              "persistence_standardized_mae": 0.8237806842212876,
+              "standardized_mse": 1.7026516748629934,
+              "persistence_standardized_mse": 2.2520289490795875
+            },
+            "平台轴1扭矩(Nm)": {
+              "standardized_mae": 0.004894194653961394,
+              "persistence_standardized_mae": 0.0,
+              "standardized_mse": 3.848103082937241e-05,
+              "persistence_standardized_mse": 0.0
+            },
+            "平台轴2扭矩(Nm)": {
+              "standardized_mae": 0.004630525911516614,
+              "persistence_standardized_mae": 0.0,
+              "standardized_mse": 3.81292503041724e-05,
+              "persistence_standardized_mse": 0.0
+            },
+            "平台轴3扭矩(Nm)": {
+              "standardized_mae": 0.005380081096622679,
+              "persistence_standardized_mae": 0.0,
+              "standardized_mse": 4.672194108815171e-05,
+              "persistence_standardized_mse": 0.0
+            },
+            "拖换扭矩(Nm)": {
+              "standardized_mae": 0.6007321583032971,
+              "persistence_standardized_mae": 0.7184111197046159,
+              "standardized_mse": 0.7045331500071762,
+              "persistence_standardized_mse": 0.9667421561658104
+            },
+            "洁净室压力(mBar)": {
+              "standardized_mae": 0.04047406816464007,
+              "persistence_standardized_mae": 0.04221474079831249,
+              "standardized_mse": 0.0033144182645257784,
+              "persistence_standardized_mse": 0.003384310723921812
+            },
+            "管道压力(mBar)": {
+              "standardized_mae": 0.009613682012094392,
+              "persistence_standardized_mae": 0.01128753310309516,
+              "standardized_mse": 0.00015429815525426282,
+              "persistence_standardized_mse": 0.00020205567319113665
+            },
+            "落粉轴扭矩(Nm)": {
+              "standardized_mae": 0.11375741544266542,
+              "persistence_standardized_mae": 0.132674697127276,
+              "standardized_mse": 0.019546585256915675,
+              "persistence_standardized_mse": 0.03110290811162767
+            },
+            "落粉轴绝对位置": {
+              "standardized_mae": 0.26449589120722916,
+              "persistence_standardized_mae": 0.2936740873812361,
+              "standardized_mse": 0.25694810462089845,
+              "persistence_standardized_mse": 0.48523916000829914
+            },
+            "过滤压力(mBar)": {
+              "standardized_mae": 0.01713470850409827,
+              "persistence_standardized_mae": 0.020863747199565113,
+              "standardized_mse": 0.0004806931367003966,
+              "persistence_standardized_mse": 0.000713580860472937
+            },
+            "进水压力1(Bar)": {
+              "standardized_mae": 0.14551357275773252,
+              "persistence_standardized_mae": 0.19660764463639094,
+              "standardized_mse": 0.03146318751178428,
+              "persistence_standardized_mse": 0.061386675611902856
+            },
+            "进水压力2(Bar)": {
+              "standardized_mae": 0.010617571847803063,
+              "persistence_standardized_mae": 0.011655650969511933,
+              "standardized_mse": 0.002674430300897975,
+              "persistence_standardized_mse": 0.0024657351603028393
+            },
+            "铺粉器位置(mm)": {
+              "standardized_mae": 0.9243627184910564,
+              "persistence_standardized_mae": 1.0842477004534514,
+              "standardized_mse": 1.0166856791253733,
+              "persistence_standardized_mse": 2.1498937536198763
+            },
+            "铺粉器扭矩(Nm)": {
+              "standardized_mae": 0.8807542925979218,
+              "persistence_standardized_mae": 1.1844335609928704,
+              "standardized_mse": 1.57590948963142,
+              "persistence_standardized_mse": 3.0156838603552556
+            },
+            "铺粉器速度(mm/s)": {
+              "standardized_mae": 0.34172191417158077,
+              "persistence_standardized_mae": 0.5222139864259743,
+              "standardized_mse": 0.8763572144678228,
+              "persistence_standardized_mse": 1.6910236591527763
+            },
+            "顶升扭矩(Nm)": {
+              "standardized_mae": 0.09753518963383201,
+              "persistence_standardized_mae": 0.1282405787454918,
+              "standardized_mse": 0.01581942647797858,
+              "persistence_standardized_mse": 0.028262778271313127
+            },
+            "风速(m/s)": {
+              "standardized_mae": 0.023583367720577453,
+              "persistence_standardized_mae": 0.018644812084568873,
+              "standardized_mse": 0.0007946752821660033,
+              "persistence_standardized_mse": 0.0005481407728695128
+            },
+            "风频(Hz)": {
+              "standardized_mae": 0.09414512111020384,
+              "persistence_standardized_mae": 0.13093878341158724,
+              "standardized_mse": 0.01437013551319971,
+              "persistence_standardized_mse": 0.027327615387199862
+            },
+            "前铺粉到达": {
+              "standardized_mae": 0.945676017174787,
+              "persistence_standardized_mae": 1.0081286521024173,
+              "standardized_mse": 1.0259496205732055,
+              "persistence_standardized_mse": 2.0207468049725965,
+              "f1": 0.4548954155113468,
+              "persistence_f1": 0.42300093054086096
+            },
+            "单次铺粉运行": {
+              "standardized_mae": 0.7864766957733367,
+              "persistence_standardized_mae": 0.7904135719637077,
+              "standardized_mse": 1.0771048659941138,
+              "persistence_standardized_mse": 2.1047286291221643,
+              "f1": 0.15893719806763285,
+              "persistence_f1": 0.27705463697128785
+            },
+            "后铺粉到达": {
+              "standardized_mae": 0.9396040332648489,
+              "persistence_standardized_mae": 1.024572751057148,
+              "standardized_mse": 1.0135668901674657,
+              "persistence_standardized_mse": 2.0589600095626506,
+              "f1": 0.45347799408713113,
+              "persistence_f1": 0.458904271125681
+            },
+            "落粉闸板": {
+              "standardized_mae": 0.5040326312366459,
+              "persistence_standardized_mae": 0.6192248215668731,
+              "standardized_mse": 1.1947742332604792,
+              "persistence_standardized_mse": 2.4016663767838717,
+              "f1": 0.005853906846525834,
+              "persistence_f1": 0.12783004552352048
+            },
+            "铺粉器绝对位置运行": {
+              "standardized_mae": 0.7856009570078717,
+              "persistence_standardized_mae": 0.7904295349995295,
+              "standardized_mse": 1.0764966463654835,
+              "persistence_standardized_mse": 2.104734858585155,
+              "f1": 0.15817953425451733,
+              "persistence_f1": 0.27704713968717865
+            }
+          }
+        }
+      },
+      {
+        "fold": "fold_b",
+        "train_devices": [
+          "01-X450-1",
+          "03-X450-3"
+        ],
+        "validation_devices": [
+          "02-X450-2"
+        ],
+        "train_windows": 6000,
+        "validation_windows": 1500,
+        "train_windows_by_device": {
+          "01-X450-1": 3000,
+          "03-X450-3": 3000
+        },
+        "validation_windows_by_device": {
+          "02-X450-2": 1500
+        },
+        "best_epoch": 5,
+        "best_metrics": {
+          "objective_selected_27": 0.6096770405341575,
+          "forecast_points": 90000,
+          "continuous_relative_mse_vs_persistence": 0.5784559975674837,
+          "continuous_skill_vs_persistence": 0.42154400243251633,
+          "continuous_standardized_mae": 0.22258433153171062,
+          "boolean_active_macro_f1": 0.31747385921027016,
+          "persistence_boolean_active_macro_f1": 0.3066058101000946,
+          "active_boolean_feature_count": 5,
+          "metrics_by_feature": {
+            "H13压差(mBar)": {
+              "standardized_mae": 0.026353502405496936,
+              "persistence_standardized_mae": 0.03384479792331242,
+              "standardized_mse": 0.0032912982744012563,
+              "persistence_standardized_mse": 0.00513185998132909
+            },
+            "保护气体压力(Bar)": {
+              "standardized_mae": 0.18212650775162814,
+              "persistence_standardized_mae": 0.22437716562335586,
+              "standardized_mse": 0.1397251588341944,
+              "persistence_standardized_mse": 0.24875099390264346
+            },
+            "前螺旋扭矩(Nm)": {
+              "standardized_mae": 0.3666195007688269,
+              "persistence_standardized_mae": 0.48841221734617524,
+              "standardized_mse": 0.456384956021236,
+              "persistence_standardized_mse": 0.688779888470977
+            },
+            "压缩空气压力(Bar)": {
+              "standardized_mae": 0.3687244949086336,
+              "persistence_standardized_mae": 0.3826319455701056,
+              "standardized_mse": 0.2729930971546083,
+              "persistence_standardized_mse": 0.29531135197973957
+            },
+            "后螺旋扭矩(Nm)": {
+              "standardized_mae": 0.34144117601669083,
+              "persistence_standardized_mae": 0.44578209439220634,
+              "standardized_mse": 0.4333693601525864,
+              "persistence_standardized_mse": 0.602970304937223
+            },
+            "平台轴1扭矩(Nm)": {
+              "standardized_mae": 0.00548985634777281,
+              "persistence_standardized_mae": 0.0,
+              "standardized_mse": 4.418941845685498e-05,
+              "persistence_standardized_mse": 0.0
+            },
+            "平台轴2扭矩(Nm)": {
+              "standardized_mae": 0.004618274139695697,
+              "persistence_standardized_mae": 0.0,
+              "standardized_mse": 3.185571176755337e-05,
+              "persistence_standardized_mse": 0.0
+            },
+            "平台轴3扭矩(Nm)": {
+              "standardized_mae": 0.004789750498533249,
+              "persistence_standardized_mae": 0.0,
+              "standardized_mse": 3.294820728890464e-05,
+              "persistence_standardized_mse": 0.0
+            },
+            "拖换扭矩(Nm)": {
+              "standardized_mae": 0.6865133511963921,
+              "persistence_standardized_mae": 0.5468561606339075,
+              "standardized_mse": 0.9712430736140798,
+              "persistence_standardized_mse": 0.9593698274318785
+            },
+            "洁净室压力(mBar)": {
+              "standardized_mae": 0.0959051315783477,
+              "persistence_standardized_mae": 0.11601766878077413,
+              "standardized_mse": 0.1311988068099412,
+              "persistence_standardized_mse": 0.18859119565290436
+            },
+            "管道压力(mBar)": {
+              "standardized_mae": 0.0296447439046746,
+              "persistence_standardized_mae": 0.03711660938106725,
+              "standardized_mse": 0.004645747955065003,
+              "persistence_standardized_mse": 0.006230057593866469
+            },
+            "落粉轴扭矩(Nm)": {
+              "standardized_mae": 0.13502178596936995,
+              "persistence_standardized_mae": 0.1677985410730044,
+              "standardized_mse": 0.0351336336118172,
+              "persistence_standardized_mse": 0.06260400130063322
+            },
+            "落粉轴绝对位置": {
+              "standardized_mae": 0.3949926939827985,
+              "persistence_standardized_mae": 0.5123684784876881,
+              "standardized_mse": 0.4400514830509817,
+              "persistence_standardized_mse": 0.9313721063250298
+            },
+            "过滤压力(mBar)": {
+              "standardized_mae": 0.04643054080436717,
+              "persistence_standardized_mae": 0.05780577443258545,
+              "standardized_mse": 0.023065049636338084,
+              "persistence_standardized_mse": 0.02645091656761071
+            },
+            "进水压力1(Bar)": {
+              "standardized_mae": 0.5757147315704031,
+              "persistence_standardized_mae": 0.7908538089560682,
+              "standardized_mse": 0.4999277940178901,
+              "persistence_standardized_mse": 0.9775984181418722
+            },
+            "进水压力2(Bar)": {
+              "standardized_mae": 0.004845605162304774,
+              "persistence_standardized_mae": 0.004369149393556614,
+              "standardized_mse": 0.00012012374867816546,
+              "persistence_standardized_mse": 7.553900575448376e-05
+            },
+            "铺粉器位置(mm)": {
+              "standardized_mae": 0.8249473114184709,
+              "persistence_standardized_mae": 1.0636517112165065,
+              "standardized_mse": 0.8699359213317237,
+              "persistence_standardized_mse": 2.1170516899621354
+            },
+            "铺粉器扭矩(Nm)": {
+              "standardized_mae": 0.3935412538585201,
+              "persistence_standardized_mae": 0.6289761989891218,
+              "standardized_mse": 0.6427846451467762,
+              "persistence_standardized_mse": 1.2847416784082786
+            },
+            "铺粉器速度(mm/s)": {
+              "standardized_mae": 0.23248327578586261,
+              "persistence_standardized_mae": 0.36055031813187316,
+              "standardized_mse": 0.42662757309795635,
+              "persistence_standardized_mse": 0.8471012194002315
+            },
+            "顶升扭矩(Nm)": {
+              "standardized_mae": 0.04245904474440548,
+              "persistence_standardized_mae": 0.05531705090519455,
+              "standardized_mse": 0.0027225675376325352,
+              "persistence_standardized_mse": 0.004874983804437632
+            },
+            "风速(m/s)": {
+              "standardized_mae": 0.032274178746870406,
+              "persistence_standardized_mae": 0.04154720492117728,
+              "standardized_mse": 0.013654663904451298,
+              "persistence_standardized_mse": 0.030468509514962126
+            },
+            "风频(Hz)": {
+              "standardized_mae": 0.10191858213756738,
+              "persistence_standardized_mae": 0.1377853939915147,
+              "standardized_mse": 0.0744946307103943,
+              "persistence_standardized_mse": 0.12942693470699446
+            },
+            "前铺粉到达": {
+              "standardized_mae": 0.8316999639623694,
+              "persistence_standardized_mae": 1.0001799205409156,
+              "standardized_mse": 0.8483371661029608,
+              "persistence_standardized_mse": 2.007321604628387,
+              "f1": 0.6011475689657436,
+              "persistence_f1": 0.4526906650396583
+            },
+            "单次铺粉运行": {
+              "standardized_mae": 0.6235321931981378,
+              "persistence_standardized_mae": 0.6357314319213231,
+              "standardized_mse": 0.832706423048939,
+              "persistence_standardized_mse": 1.609108640475387,
+              "f1": 0.18174530462666055,
+              "persistence_f1": 0.26279229038254576
+            },
+            "后铺粉到达": {
+              "standardized_mae": 0.8273162646048599,
+              "persistence_standardized_mae": 1.007430517133077,
+              "standardized_mse": 0.8546307619008224,
+              "persistence_standardized_mse": 2.0260505327075964,
+              "f1": 0.6225541601657416,
+              "persistence_f1": 0.45517824773413895
+            },
+            "落粉闸板": {
+              "standardized_mae": 0.3538963623839948,
+              "persistence_standardized_mae": 0.4232252254406611,
+              "standardized_mse": 0.8162867987293286,
+              "persistence_standardized_mse": 1.5276000407881043,
+              "f1": 0.0,
+              "persistence_f1": 0.09949654407372643
+            },
+            "铺粉器绝对位置运行": {
+              "standardized_mae": 0.6183331953934498,
+              "persistence_standardized_mae": 0.635789400678873,
+              "standardized_mse": 0.8328752769639616,
+              "persistence_standardized_mse": 1.609259724041395,
+              "f1": 0.1819222622932051,
+              "persistence_f1": 0.2628713032704033
+            }
+          }
+        }
+      },
+      {
+        "fold": "fold_c",
+        "train_devices": [
+          "02-X450-2",
+          "03-X450-3"
+        ],
+        "validation_devices": [
+          "01-X450-1"
+        ],
+        "train_windows": 6000,
+        "validation_windows": 1500,
+        "train_windows_by_device": {
+          "02-X450-2": 3000,
+          "03-X450-3": 3000
+        },
+        "validation_windows_by_device": {
+          "01-X450-1": 1500
+        },
+        "best_epoch": 5,
+        "best_metrics": {
+          "objective_selected_27": 0.631588361828719,
+          "forecast_points": 90000,
+          "continuous_relative_mse_vs_persistence": 0.6204486129841551,
+          "continuous_skill_vs_persistence": 0.3795513870158449,
+          "continuous_standardized_mae": 0.2939819929890977,
+          "boolean_active_macro_f1": 0.34241889086729854,
+          "persistence_boolean_active_macro_f1": 0.3018935896706722,
+          "active_boolean_feature_count": 5,
+          "metrics_by_feature": {
+            "H13压差(mBar)": {
+              "standardized_mae": 0.02922294489542643,
+              "persistence_standardized_mae": 0.0035979126824273004,
+              "standardized_mse": 0.0011363536920304695,
+              "persistence_standardized_mse": 6.756628950016521e-05
+            },
+            "保护气体压力(Bar)": {
+              "standardized_mae": 0.3697428634873889,
+              "persistence_standardized_mae": 0.4559835997882312,
+              "standardized_mse": 0.612726476121202,
+              "persistence_standardized_mse": 0.8612847722282041
+            },
+            "前螺旋扭矩(Nm)": {
+              "standardized_mae": 0.19081703538595077,
+              "persistence_standardized_mae": 0.212436992700191,
+              "standardized_mse": 0.2687848418120469,
+              "persistence_standardized_mse": 0.3279992859354011
+            },
+            "压缩空气压力(Bar)": {
+              "standardized_mae": 0.21237830634333157,
+              "persistence_standardized_mae": 0.2051326715190612,
+              "standardized_mse": 0.08951224217990779,
+              "persistence_standardized_mse": 0.089161142158557
+            },
+            "后螺旋扭矩(Nm)": {
+              "standardized_mae": 0.11643926575614605,
+              "persistence_standardized_mae": 0.14744922550263193,
+              "standardized_mse": 0.10914393546711561,
+              "persistence_standardized_mse": 0.1382512231911001
+            },
+            "平台轴1扭矩(Nm)": {
+              "standardized_mae": 0.053836281899305886,
+              "persistence_standardized_mae": 0.03831780099589895,
+              "standardized_mse": 0.024575200058274366,
+              "persistence_standardized_mse": 0.026350108283435734
+            },
+            "平台轴2扭矩(Nm)": {
+              "standardized_mae": 0.05288135262672117,
+              "persistence_standardized_mae": 0.03774087758414292,
+              "standardized_mse": 0.018674795337370043,
+              "persistence_standardized_mse": 0.020710159967541136
+            },
+            "平台轴3扭矩(Nm)": {
+              "standardized_mae": 0.05669968860472759,
+              "persistence_standardized_mae": 0.04667052203657416,
+              "standardized_mse": 0.020215749959822463,
+              "persistence_standardized_mse": 0.024542116420810008
+            },
+            "拖换扭矩(Nm)": {
+              "standardized_mae": 0.4956489432736093,
+              "persistence_standardized_mae": 0.5723063604348132,
+              "standardized_mse": 0.5172009073091843,
+              "persistence_standardized_mse": 0.6028622813163375
+            },
+            "洁净室压力(mBar)": {
+              "standardized_mae": 0.2638638883484094,
+              "persistence_standardized_mae": 0.3008023273308261,
+              "standardized_mse": 0.8853916284580797,
+              "persistence_standardized_mse": 1.0680111588460175
+            },
+            "管道压力(mBar)": {
+              "standardized_mae": 0.014265471935272217,
+              "persistence_standardized_mae": 0.0,
+              "standardized_mse": 0.00031273528586545784,
+              "persistence_standardized_mse": 0.0
+            },
+            "落粉轴扭矩(Nm)": {
+              "standardized_mae": 0.5107988085428874,
+              "persistence_standardized_mae": 0.6154792687892914,
+              "standardized_mse": 0.6689218893379989,
+              "persistence_standardized_mse": 1.0663679591288584
+            },
+            "落粉轴绝对位置": {
+              "standardized_mae": 0.48237519296188647,
+              "persistence_standardized_mae": 0.5932453608924697,
+              "standardized_mse": 0.5842022268122667,
+              "persistence_standardized_mse": 1.0639231566957037
+            },
+            "过滤压力(mBar)": {
+              "standardized_mae": 0.18865727508531013,
+              "persistence_standardized_mae": 0.1659860514836462,
+              "standardized_mse": 0.3020688697439266,
+              "persistence_standardized_mse": 0.29870196241614483
+            },
+            "进水压力1(Bar)": {
+              "standardized_mae": 0.04004180788795153,
+              "persistence_standardized_mae": 0.04849087070160442,
+              "standardized_mse": 0.0024986684589537824,
+              "persistence_standardized_mse": 0.003666201436510123
+            },
+            "进水压力2(Bar)": {
+              "standardized_mae": 0.01039478455007904,
+              "persistence_standardized_mae": 0.0021285373290586803,
+              "standardized_mse": 0.00019914240753945723,
+              "persistence_standardized_mse": 3.4142707428223056e-05
+            },
+            "铺粉器位置(mm)": {
+              "standardized_mae": 0.7718934364330573,
+              "persistence_standardized_mae": 1.0247511872886907,
+              "standardized_mse": 0.7640164229981234,
+              "persistence_standardized_mse": 1.8810493447090633
+            },
+            "铺粉器扭矩(Nm)": {
+              "standardized_mae": 0.6722621847662195,
+              "persistence_standardized_mae": 0.8889752848335645,
+              "standardized_mse": 0.8440458826427717,
+              "persistence_standardized_mse": 1.6832769950491453
+            },
+            "铺粉器速度(mm/s)": {
+              "standardized_mae": 0.5132199885737393,
+              "persistence_standardized_mae": 0.8000048158634622,
+              "standardized_mse": 2.3636683733091064,
+              "persistence_standardized_mse": 4.793384031304776
+            },
+            "顶升扭矩(Nm)": {
+              "standardized_mae": 0.0654378358632947,
+              "persistence_standardized_mae": 0.0867112519786926,
+              "standardized_mse": 0.007489173366135773,
+              "persistence_standardized_mse": 0.013934303176088722
+            },
+            "风速(m/s)": {
+              "standardized_mae": 1.1536912949879965,
+              "persistence_standardized_mae": 1.5170470328436958,
+              "standardized_mse": 6.142675509029931,
+              "persistence_standardized_mse": 9.130228589663648
+            },
+            "风频(Hz)": {
+              "standardized_mae": 0.20303519355143848,
+              "persistence_standardized_mae": 0.22585194685336935,
+              "standardized_mse": 0.42246093418465275,
+              "persistence_standardized_mse": 0.5180150929881782
+            },
+            "前铺粉到达": {
+              "standardized_mae": 0.8520639081958268,
+              "persistence_standardized_mae": 1.0629504048665364,
+              "standardized_mse": 0.8800339592003542,
+              "persistence_standardized_mse": 2.135578811503204,
+              "f1": 0.6170279383429672,
+              "persistence_f1": 0.44946236559139785
+            },
+            "单次铺粉运行": {
+              "standardized_mae": 0.6031073253742523,
+              "persistence_standardized_mae": 0.6156448631584645,
+              "standardized_mse": 0.7832563827110086,
+              "persistence_standardized_mse": 1.560889254965053,
+              "f1": 0.263082358136454,
+              "persistence_f1": 0.26580662500839886
+            },
+            "后铺粉到达": {
+              "standardized_mae": 0.8436796984944078,
+              "persistence_standardized_mae": 1.0477559323297607,
+              "standardized_mse": 0.8678210433654945,
+              "persistence_standardized_mse": 2.1047531940671425,
+              "f1": 0.5670850805184872,
+              "persistence_f1": 0.41000955205872003
+            },
+            "落粉闸板": {
+              "standardized_mae": 0.41088495660192437,
+              "persistence_standardized_mae": 0.49780685515668655,
+              "standardized_mse": 0.92752694602977,
+              "persistence_standardized_mse": 1.8395785098720823,
+              "f1": 0.002328627565128802,
+              "persistence_f1": 0.1183827806864456
+            },
+            "铺粉器绝对位置运行": {
+              "standardized_mae": 0.6063726663577887,
+              "persistence_standardized_mae": 0.6156389290922218,
+              "standardized_mse": 0.7846801754614392,
+              "persistence_standardized_mse": 1.560859164969502,
+              "f1": 0.2625704497734556,
+              "persistence_f1": 0.26580662500839886
+            }
+          }
+        }
+      }
+    ],
+    "device04_loaded_or_used": false
+  },
+  "contract": {
+    "experiment_id": "D_129_history_plus_5_conditions_to_27",
+    "source_feature_count": 134,
+    "total_input_fields": 134,
+    "dynamic_history_fields": 129,
+    "condition_fields": 5,
+    "output_fields": 27,
+    "dynamic_feature_order": [
+      "H13压差(mBar)",
+      "LaserPowerOk",
+      "LaserPowerOn",
+      "LaserRemoteStart",
+      "一键充气运行",
+      "余粉高度(mm)",
+      "保护气体压力(Bar)",
+      "保护气体温度(C)",
+      "出舱运行",
+      "前溢流罐",
+      "前溢粉槽",
+      "前溢粉槽阀",
+      "前螺旋扭矩(Nm)",
+      "前螺旋运行",
+      "前铺粉到达",
+      "加热板1温度(C)",
+      "加热板2温度(C)",
+      "加热板3温度(C)",
+      "加热板4温度(C)",
+      "加热运行",
+      "单次铺粉运行",
+      "压空切换",
+      "压缩空气压力(Bar)",
+      "反吹标记",
+      "反吹次数",
+      "反吹滤芯压降(mBar)",
+      "后溢流罐",
+      "后溢粉槽",
+      "后溢粉槽阀",
+      "后螺旋扭矩(Nm)",
+      "后螺旋运行",
+      "后铺粉到达",
+      "基板温度(C)",
+      "大充气运行",
+      "夹紧",
+      "平台2运行",
+      "平台3运行",
+      "平台同步",
+      "平台底板温度(C)",
+      "平台调试",
+      "平台轴1扭矩(Nm)",
+      "平台轴2(mm)",
+      "平台轴2扭矩(Nm)",
+      "平台轴3(mm)",
+      "平台轴3扭矩(Nm)",
+      "平台运行",
+      "平台顶升运行",
+      "平台高度(mm)",
+      "废料桶",
+      "废料桶充气",
+      "废料桶收集(%)",
+      "开门请求",
+      "急停",
+      "总落粉量",
+      "成型缸到位",
+      "手动反吹",
+      "打印反吹",
+      "拖换位置(mm)",
+      "拖换扭矩(Nm)",
+      "拖换运行",
+      "振镜总进水温度(℃)",
+      "振镜进水温度(℃)",
+      "排气运行",
+      "料位清理",
+      "旋风",
+      "旋风料位",
+      "松开",
+      "松粉运行",
+      "正压测试运行",
+      "气密",
+      "洁净室压力(mBar)",
+      "洁净室压力波动(mBar)",
+      "清粉运行",
+      "溢流罐",
+      "溢流罐-前上阀门",
+      "溢流罐-后上阀门",
+      "空气阀",
+      "管氧含量",
+      "管氧含量(PPM)",
+      "管道压力(mBar)",
+      "粉舱充气运行",
+      "维护",
+      "舱压运行",
+      "舱室出气阀",
+      "舱室压力(mBar)",
+      "舱室氧含量(%)",
+      "舱室氧含量(PPM)",
+      "舱室温度(C)",
+      "舱室进气阀",
+      "舱室门",
+      "舱室门反馈",
+      "落粉轴扭矩(Nm)",
+      "落粉轴绝对位置",
+      "落粉轴置零运行",
+      "落粉量手动",
+      "落粉量打印",
+      "落粉闸板",
+      "负压测试运行",
+      "过滤出气阀",
+      "过滤压力(mBar)",
+      "过滤氧含量(%)",
+      "过滤系统充气",
+      "过滤进气阀",
+      "进水压力1(Bar)",
+      "进水压力2(Bar)",
+      "进舱运行",
+      "连通阀",
+      "铺粉器位置(mm)",
+      "铺粉器全运行",
+      "铺粉器扭矩(Nm)",
+      "铺粉器绝对位置运行",
+      "铺粉器置零运行",
+      "铺粉器速度(mm/s)",
+      "闸门",
+      "防护门",
+      "阻燃剂余量(kg)",
+      "阻燃剂喷吹",
+      "阻燃剂罐",
+      "阻燃剂罐充气",
+      "阻燃剂罐底料位",
+      "阻燃剂罐高料位",
+      "阻燃剂铺层",
+      "顶升扭矩(Nm)",
+      "顶升运行",
+      "顶升高度(mm)",
+      "风机运行",
+      "风速(m/s)",
+      "风频(Hz)",
+      "打印层数"
+    ],
+    "condition_feature_order": [
+      "设松粉S",
+      "设铺粉模式",
+      "设前螺旋时长",
+      "设后螺旋时长",
+      "设风速"
+    ],
+    "target_feature_order": [
+      "H13压差(mBar)",
+      "保护气体压力(Bar)",
+      "前螺旋扭矩(Nm)",
+      "压缩空气压力(Bar)",
+      "后螺旋扭矩(Nm)",
+      "平台轴1扭矩(Nm)",
+      "平台轴2扭矩(Nm)",
+      "平台轴3扭矩(Nm)",
+      "拖换扭矩(Nm)",
+      "洁净室压力(mBar)",
+      "管道压力(mBar)",
+      "落粉轴扭矩(Nm)",
+      "落粉轴绝对位置",
+      "过滤压力(mBar)",
+      "进水压力1(Bar)",
+      "进水压力2(Bar)",
+      "铺粉器位置(mm)",
+      "铺粉器扭矩(Nm)",
+      "铺粉器速度(mm/s)",
+      "顶升扭矩(Nm)",
+      "风速(m/s)",
+      "风频(Hz)",
+      "前铺粉到达",
+      "单次铺粉运行",
+      "后铺粉到达",
+      "落粉闸板",
+      "铺粉器绝对位置运行"
+    ],
+    "restricted_conditions": {
+      "设风速": "Within current selection data it is 4.5 on device 01 and 7.0 on devices 02/03, with no within-device variation; it may proxy device identity."
+    }
+  },
+  "device04_loaded_or_used": false,
+  "device04_is_clean_external_test": false,
+  "data_manifest_sha256": "d9c7e2c73b3f75076044f3635c10e5fb4d6071318ecde6a2f2a81c516f393309"
+}
