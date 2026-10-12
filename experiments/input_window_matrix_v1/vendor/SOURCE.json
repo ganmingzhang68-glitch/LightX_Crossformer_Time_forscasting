@@ -1,0 +1,8 @@
+{
+  "backbone_source": "experiments\\new90_to128_ampfix_v1\\vendor\\crossformer.py",
+  "original_sha256": "cc8d3210a7c8a5b8ba6ee54da2e765d22677bb82101144c2c80741113a9582d4",
+  "adaptation": "einops tensor layout operations replaced with native reshape/permute/expand only; architecture unchanged",
+  "adapted_sha256": "05c0e79b3f7dc676611ad5498a1f3e57568a94b195208116b631be80942ba1e8",
+  "amp_source": "experiments\\new90_to128_ampfix_v1\\amp_step.py",
+  "amp_sha256": "a6ef0191a380a138fad206067cbd6baf22dd309b1fe334ff6ad22d75a9918cc3"
+}

@@ -1,0 +1,41 @@
+{
+  "checked_date": "2026-10-13",
+  "timezone": "Asia/Shanghai",
+  "status": "passed_local_code_checks",
+  "code_sha": "9e0717f0efe8a1a4dbd9c4cb57a51539b880a428be3ab014cb17f8f53b532b43",
+  "storage_contract_sha": "5bbce159e99afdb9ef8befd8610138ea918e5b70426445ac019d83d84eab84e9",
+  "catalog_sha": "8242a0123c4ee16fec4b3f871fefdd5d15e847d2866e4ebbd2418f9744f9f9b9",
+  "default_profiles": 22,
+  "final_models": 264,
+  "training_tasks": 528,
+  "outputs": "original128 in original order",
+  "tests": {
+    "command": "python -m pytest tests -q",
+    "passed": 16,
+    "default_forward_combinations": 88,
+    "optional_event_forward_combinations": 12,
+    "optimizer_updates": 0,
+    "synthetic_parquet_init": true,
+    "sequential_queue_failure_resume": true
+  },
+  "compiled_python_files": 12,
+  "actual_training_started": false,
+  "server_code_uploaded": false,
+  "real_full_dataset_initialized": false,
+  "cuda_backward_verified": false,
+  "device04_values_read": false,
+  "limitations": [
+    "CUDA训练与真实全量初始化尚未执行；CPU/替身测试不能替代服务器预检。",
+    "当前264个最终模型为计划数量，没有新模型训练成绩。"
+  ],
+  "historical_field_audit": {
+    "ordered_comparisons": 97,
+    "mismatches": 0,
+    "completed_specs_including_migration_copies": 470,
+    "new90_variants": 17,
+    "all90_frozen_contract_verified": true,
+    "report": "HISTORICAL_FEATURE_AUDIT.md",
+    "physical_unit_equivalence_verified": false,
+    "same_preprocessor_as_historical_models_claimed": false
+  }
+}

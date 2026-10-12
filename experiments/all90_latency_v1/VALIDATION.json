@@ -1,0 +1,102 @@
+{
+  "status": "passed_git_package_code_checks",
+  "checked_at": "2026-09-28T17:18:45.488383+00:00",
+  "code_sha": "cdc770138f6d5ee32989c80257dc238d52ebc812cfdfff9838efa58dd94de540",
+  "contract_sha": "5bbce159e99afdb9ef8befd8610138ea918e5b70426445ac019d83d84eab84e9",
+  "tests": {
+    "command": "python -m pytest experiments/all90_latency_v1/tests -q -p no:cacheprovider",
+    "passed": 16,
+    "failed": 0,
+    "errors": 0,
+    "duration_seconds": 5.238,
+    "local_evidence_sha256": "94c9b285cd3c04cf558e44ad154f2ea60534524821b2f2eb775e37d2e22ecb24",
+    "evidence_uploaded": false
+  },
+  "compileall": "passed",
+  "original_workspace_preflight": "passed",
+  "standalone_contract_rebuild": "passed",
+  "previous_workspace_real_source_check": {
+    "code_sha": "f098f4e64239b0b1b96e0db0bd6c4efa4e880af68ac290979da949e9c377bffc",
+    "contract_sha": "5bbce159e99afdb9ef8befd8610138ea918e5b70426445ac019d83d84eab84e9",
+    "local_evidence_sha256": "25549094b1446d35aad874fba2ef0318c8b04351adc2ddd9357ab990a3e4ff39",
+    "samples": [
+      {
+        "device": "01-X450-1",
+        "source_rows": 359,
+        "fused_rows": 360,
+        "common_windows": 30,
+        "raw_fields": 218,
+        "added_fields": 90,
+        "groups_checked": [
+          "G1_300_10_120",
+          "G2_180_10_60",
+          "G3_180_10_120",
+          "G4_300_10_60"
+        ]
+      },
+      {
+        "device": "02-X450-2",
+        "source_rows": 359,
+        "fused_rows": 360,
+        "common_windows": 30,
+        "raw_fields": 218,
+        "added_fields": 90,
+        "groups_checked": [
+          "G1_300_10_120",
+          "G2_180_10_60",
+          "G3_180_10_120",
+          "G4_300_10_60"
+        ]
+      },
+      {
+        "device": "03-X450-3",
+        "source_rows": 359,
+        "fused_rows": 360,
+        "common_windows": 30,
+        "raw_fields": 218,
+        "added_fields": 90,
+        "groups_checked": [
+          "G1_300_10_120",
+          "G2_180_10_60",
+          "G3_180_10_120",
+          "G4_300_10_60"
+        ]
+      }
+    ],
+    "evidence_uploaded": false,
+    "scope": "Historical check before portable source loading change; not rerun during Git packaging."
+  },
+  "training_started": false,
+  "optimizer_steps": 0,
+  "device04_values_read": false,
+  "training_server_connected": false,
+  "limitations": [
+    "CPU forward only; no CUDA forward/backward or training verification",
+    "One 12-minute sample per development device; not full-dataset validation",
+    "Latency benchmark requires final trained models; no latency or model-quality claims yet"
+  ],
+  "groups": {
+    "G1_300_10_120": {
+      "context": 150,
+      "gap": 5,
+      "horizon": 60
+    },
+    "G2_180_10_60": {
+      "context": 90,
+      "gap": 5,
+      "horizon": 30
+    },
+    "G3_180_10_120": {
+      "context": 90,
+      "gap": 5,
+      "horizon": 60
+    },
+    "G4_300_10_60": {
+      "context": 150,
+      "gap": 5,
+      "horizon": 30
+    }
+  },
+  "planned_selection_runs": 12,
+  "planned_refit_runs": 12
+}
