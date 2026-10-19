@@ -2,6 +2,13 @@
 
 这是用于 LightX SLM 3D 打印机 PLC 传感器的 Crossformer 部署项目。仓库包含最佳模型权重、固定特征契约、训练集归一化参数、原始 InfluxDB Parquet 预处理脚本和推理脚本，可以在其他同构设备上执行与训练阶段一致的预测任务。
 
+仓库现在有两套用途：
+
+- 根目录的 `artifacts/`、`prepare_influx.py` 和 `predict.py` 用于已经发布的固定128输入、128输出模型推理。
+- [`experiments/input_window_matrix_v1/`](experiments/input_window_matrix_v1/) 用于重新训练不同输入特征组合，并在G1–G4四种时间窗口下统一预测原128特征。自定义特征清单功能位于 `feature/custom-feature-manifest` 分支。
+
+两套流程的模型、特征契约和预处理器不能混用。实验训练产生的新checkpoint不会覆盖根目录发布模型。
+
 ## 预测任务
 
 - 输入：过去 300 秒数据，即 150 个点 × 128 个特征。
@@ -62,6 +69,8 @@
 ├── FEATURES.md                    # 128个训练特征的完整说明
 ├── crossformer/
 │   └── model.py                # 精简、可独立加载权重的 Crossformer
+├── experiments/
+│   └── input_window_matrix_v1/ # 多输入方案、自定义特征、G1–G4训练及04评估
 ├── prepare_influx.py           # Influx 长表 Parquet → 128 特征宽表
 ├── predict.py                  # 最新窗口或滚动预测
 └── validate_bundle.py          # checkpoint 严格加载及前向冒烟测试
@@ -97,6 +106,33 @@ python validate_bundle.py
 ```
 
 CPU 可以推理；如果安装的 PyTorch 支持 CUDA，默认会自动使用 GPU。
+
+## 训练新的输入特征模型
+
+训练代码不在默认 `main` 分支。使用自定义特征清单时应明确切换分支：
+
+```bash
+git clone https://github.com/ganmingzhang68-glitch/LightX_Crossformer_Time_forscasting.git
+cd LightX_Crossformer_Time_forscasting
+git switch feature/custom-feature-manifest
+
+cd experiments/input_window_matrix_v1
+python -m pip install -r requirements.txt
+python -m pytest tests -q
+```
+
+训练任务固定遵循以下约束：
+
+- 输入存储契约为原128字段加新增90字段，共218个有序源字段；每个模型只选择其中一部分。
+- 自定义模型至少包含原128字段，因为模型使用这128个字段的历史值完成末值残差预测。
+- 输出始终为原128字段，其中56个连续量、72个布尔量。
+- 每个输入方案都覆盖G1–G4四种历史长度和预测长度。
+- 设备01/02/03用于选轮次和最终训练；设备04只用于全部模型完成后的外部评估。
+- `plan` 和 `init` 不训练；只有显式执行 `train_queue.py run` 才会更新模型权重，并且需要CUDA。
+
+训练数据不会随Git仓库发布。训练前必须准备旧128数据集和新增90字段宽表，再由实验目录的 `prepare.py` 融合成218字段、按打印任务分片的数据集。完整的数据格式、特征类型处理、自定义清单格式、训练与恢复命令见：
+
+[`experiments/input_window_matrix_v1/README.md`](experiments/input_window_matrix_v1/README.md)
 
 ## 输入数据
 
