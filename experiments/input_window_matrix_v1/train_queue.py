@@ -1,6 +1,7 @@
 """plan/init are CPU-only; explicit run trains ONE model at a time until completion."""
 from __future__ import annotations
 import argparse
+import copy
 from contextlib import contextmanager, redirect_stdout, redirect_stderr
 import gc
 import os
@@ -11,7 +12,8 @@ import traceback
 from datetime import datetime, timezone
 
 from common import (HERE, contract, catalog, code_identity, digest, file_hash, read_json,
-                    write_json, safe_new_output, selected_profiles, runtime_contract, verify_signed)
+                    write_json, safe_new_output, selected_profiles, load_feature_manifests,
+                    runtime_contract, verify_signed)
 
 
 def now():
@@ -19,13 +21,20 @@ def now():
 
 
 def make_plan(profiles=None, output_policy="old128", seeds=None, epochs=50, patience=8,
-              train_cap=0, workers=0):
+              train_cap=0, workers=0, feature_manifests=None, custom_profiles=None,
+              custom_sources=None):
     if output_policy != "old128":
         raise ValueError("This new training matrix must output the original128 fields")
     if min(epochs, patience) < 1 or train_cap < 0 or workers < 0:
         raise ValueError("Invalid budget")
+    if feature_manifests is not None and (custom_profiles is not None or custom_sources is not None):
+        raise ValueError("Use manifest paths or frozen custom profiles, not both")
     c = contract()
-    chosen, aliases = selected_profiles(profiles, output_policy)
+    if feature_manifests is not None:
+        custom_profiles, custom_sources = load_feature_manifests(feature_manifests)
+    else:
+        custom_profiles, custom_sources = copy.deepcopy(custom_profiles or {}), copy.deepcopy(custom_sources or [])
+    chosen, aliases = selected_profiles(profiles, output_policy, custom_profiles)
     seeds = seeds if seeds is not None else c["seeds"]
     if not seeds or len(set(seeds)) != len(seeds) or any(type(s) is not int or s < 0 for s in seeds):
         raise ValueError("Require unique nonnegative seeds")
@@ -38,7 +47,8 @@ def make_plan(profiles=None, output_policy="old128", seeds=None, epochs=50, pati
                     key = f"{profile}/{group}/seed_{seed}"
                     tasks.append(dict(id=f"{stage}/{key}", stage=stage, profile=profile, group=group, seed=seed,
                                       path=f"{'selection' if stage == 'select' else 'models'}/{key}"))
-    result = dict(version=1, profiles=chosen, requested_profiles=list(profiles) if profiles else None,
+    result = dict(version=2, profiles=chosen, requested_profiles=list(profiles) if profiles else None,
+        custom_profiles=custom_profiles, feature_manifest_sources=custom_sources,
         output_policy=output_policy, aliases=aliases, groups=c["groups"], seeds=seeds,
         params=c["model_params"], selection=dict(epochs=epochs, patience=patience,
         train_cap_per_device=train_cap, validation_job_fraction=c["selection"]["validation_job_fraction"]),
@@ -64,7 +74,8 @@ def describe(plan):
 
 def initialize(args):
     from data import Repository, split_jobs, fit_preprocessor, apply_shared_cohort
-    plan = make_plan(args.profiles, args.output_policy, args.seeds, args.epochs, args.patience, args.train_cap, args.workers)
+    plan = make_plan(args.profiles, args.output_policy, args.seeds, args.epochs, args.patience,
+                     args.train_cap, args.workers, getattr(args, "feature_manifest", None))
     c = contract()
     repo = Repository(args.data_root, c)  # complete identity/time/observed-label validation
     cohort = apply_shared_cohort(repo, plan["profiles"])
@@ -98,7 +109,8 @@ def verify_plan(plan):
         raise ValueError("Code or field contract changed; create a new queue/version")
     fresh = make_plan(plan["requested_profiles"], plan["output_policy"], plan["seeds"],
                       plan["selection"]["epochs"], plan["selection"]["patience"],
-                      plan["selection"]["train_cap_per_device"], plan["workers"])
+                      plan["selection"]["train_cap_per_device"], plan["workers"],
+                      custom_profiles=plan["custom_profiles"], custom_sources=plan["feature_manifest_sources"])
     if any(plan[k] != v for k, v in fresh.items()):
         raise ValueError("Queue differs from reproducible task matrix")
 
@@ -286,6 +298,8 @@ def main():
     for name in ("plan", "init"):
         q = sub.add_parser(name)
         q.add_argument("--profiles", nargs="+")
+        q.add_argument("--feature-manifest", type=Path, action="append", metavar="JSON",
+                       help="ordered custom input contract; repeat to add multiple custom profiles")
         q.add_argument("--output-policy", choices=["old128"], default="old128")
         q.add_argument("--seeds", nargs="+", type=int)
         q.add_argument("--epochs", type=int, default=50)
@@ -301,7 +315,8 @@ def main():
     q.add_argument("--output", type=Path, required=True)
     args = p.parse_args()
     if args.command == "plan":
-        describe(make_plan(args.profiles, args.output_policy, args.seeds, args.epochs, args.patience, args.train_cap, args.workers))
+        describe(make_plan(args.profiles, args.output_policy, args.seeds, args.epochs, args.patience,
+                           args.train_cap, args.workers, args.feature_manifest))
     elif args.command == "init":
         initialize(args)
     elif args.command == "run":

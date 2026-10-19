@@ -10,7 +10,8 @@ import pytest
 import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from common import contract, catalog, digest, write_json, read_json, runtime_contract, selected_profiles, file_hash
+from common import (contract, catalog, digest, write_json, read_json, runtime_contract,
+                    selected_profiles, load_feature_manifests, file_hash)
 from data import Encoder, Windows, split_jobs, fit_preprocessor, apply_shared_cohort, event_channels
 from model import ForecastModel, grouped_loss
 from metrics import evaluate
@@ -58,6 +59,48 @@ def test_inventory_default_output_matrix_and_dedup():
     # Opting in to old133 inputs also deduplicates the new128 outputs.
     extra = make_plan(["B133_27", "F133_133"])
     assert extra["aliases"] == {"F133_133": "B133_27"}
+
+
+def test_custom_feature_manifest_simple_advanced_and_frozen_plan(tmp_path):
+    c = contract()
+    simple = tmp_path / "simple.json"
+    write_json(simple, {"version": 1, "name": "CUSTOM135", "features": c["targets"] + c["added"][:7],
+                        "quality": True, "missing_masks": True})
+    profiles, sources = load_feature_manifests([simple])
+    assert list(profiles) == ["CUSTOM135"]
+    assert profiles["CUSTOM135"]["raw_input_count"] == 135
+    assert profiles["CUSTOM135"]["targets"] == c["targets"]
+    assert sources == [{"path": str(simple.resolve()), "sha256": file_hash(simple)}]
+    plan = make_plan(feature_manifests=[simple])
+    assert list(plan["profiles"]) == ["CUSTOM135"] and len(plan["tasks"]) == 24
+    assert plan["requested_profiles"] is None and plan["custom_profiles"] == profiles
+    plan["plan_sha"] = digest(plan)
+    simple.unlink()  # A queue verifies from its frozen contract; the source file need not remain mounted.
+    verify_plan(plan)
+
+    advanced = tmp_path / "advanced.json"
+    write_json(advanced, {"version": 1, "name": "CUSTOM_CONDITION",
+        "dynamic": c["targets"], "conditions": c["added"][:5], "events": True})
+    combined = make_plan(["BASE128"], feature_manifests=[advanced])
+    assert list(combined["profiles"]) == ["BASE128", "CUSTOM_CONDITION"]
+    assert combined["profiles"]["CUSTOM_CONDITION"]["raw_input_count"] == 133
+
+
+def test_bad_custom_feature_manifests_fail(tmp_path):
+    c = contract()
+    invalid = [
+        {"version": 1, "name": "bad/name", "features": c["targets"]},
+        {"version": 1, "name": "MISSING_TARGET", "features": c["targets"][:-1]},
+        {"version": 1, "name": "UNKNOWN", "features": c["targets"] + ["not-a-field"]},
+        {"version": 1, "name": "DUPLICATE", "features": c["targets"] + [c["targets"][0]]},
+        {"version": 1, "name": "AMBIGUOUS", "features": c["targets"], "dynamic": c["targets"]},
+        {"version": 1, "name": "BASE128", "features": c["targets"]},
+    ]
+    for i, document in enumerate(invalid):
+        path = tmp_path / f"invalid_{i}.json"
+        write_json(path, document)
+        with pytest.raises(ValueError):
+            make_plan(feature_manifests=[path])
 
 
 @pytest.mark.parametrize("kwargs", [{"epochs": 0}, {"train_cap": -1}, {"seeds": [1, 1]}, {"profiles": ["unknown"]}, {"output_policy":"historical"}])

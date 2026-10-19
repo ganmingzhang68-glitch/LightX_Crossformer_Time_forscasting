@@ -1,8 +1,8 @@
 {
-  "checked_date": "2026-10-13",
+  "checked_date": "2026-10-19",
   "timezone": "Asia/Shanghai",
   "status": "passed_local_code_checks",
-  "code_sha": "9e0717f0efe8a1a4dbd9c4cb57a51539b880a428be3ab014cb17f8f53b532b43",
+  "code_sha": "3edc1c8f21773c0c4577f2c495ce238a7efa89b9623f54c3531f09128e698991",
   "storage_contract_sha": "5bbce159e99afdb9ef8befd8610138ea918e5b70426445ac019d83d84eab84e9",
   "catalog_sha": "8242a0123c4ee16fec4b3f871fefdd5d15e847d2866e4ebbd2418f9744f9f9b9",
   "default_profiles": 22,
@@ -11,12 +11,14 @@
   "outputs": "original128 in original order",
   "tests": {
     "command": "python -m pytest tests -q",
-    "passed": 16,
+    "passed": 18,
     "default_forward_combinations": 88,
     "optional_event_forward_combinations": 12,
     "optimizer_updates": 0,
     "synthetic_parquet_init": true,
-    "sequential_queue_failure_resume": true
+    "sequential_queue_failure_resume": true,
+    "custom_feature_manifest_cli": true,
+    "custom_manifest_frozen_plan": true
   },
   "compiled_python_files": 12,
   "actual_training_started": false,

@@ -66,6 +66,56 @@ python train_queue.py plan --profiles BASE128 B133_27 C129_4_27 D129_5_27 ALL90
 
 此示例为5输入 × 4时间 × 3种子 = 60最终模型；默认全量仍为264。减少输入是显式用户选择，不会被程序悄悄改变。
 
+## 自定义特征清单
+
+`--feature-manifest` 可以按有序字段清单定义新的输入方案。它可以单独使用，也可以和 `--profiles` 同时使用；参数可以重复，以便在一个队列中比较多个自定义方案。只提供自定义清单而不提供 `--profiles` 时，不会隐式加入默认22方案。
+
+简易格式把清单里的全部字段送入Crossformer动态分支。必须包含完整原128字段，可以从冻结的 `contract.json` 生成清单，随后按需要追加0至90个新增字段：
+
+```json
+{
+  "version": 1,
+  "name": "CUSTOM_135",
+  "features": ["这里填写有序字段名"],
+  "quality": true,
+  "missing_masks": true,
+  "events": false,
+  "note": "原128加自选7个新增字段"
+}
+```
+
+高级格式可以明确分配动态分支和条件GRU分支。`dynamic` 必须包含完整原128字段；同一字段允许同时出现在两个分支，原始输入数量按并集计算：
+
+```json
+{
+  "version": 1,
+  "name": "CUSTOM_CONDITION_133",
+  "dynamic": ["这里填写完整原128有序字段"],
+  "conditions": ["这里填写5个新增字段"],
+  "quality": true,
+  "missing_masks": false,
+  "events": false
+}
+```
+
+查看计划不会开始训练：
+
+```bash
+python train_queue.py plan --feature-manifest /path/to/custom_135.json
+python train_queue.py plan --profiles BASE128 ALL90 \
+  --feature-manifest /path/to/custom_135.json \
+  --feature-manifest /path/to/custom_condition_133.json
+```
+
+初始化时使用同一个参数：
+
+```bash
+python train_queue.py init --data-root /path/to/prepared --output /path/to/run \
+  --feature-manifest /path/to/custom_135.json
+```
+
+程序会拒绝未知字段、字段重复、缺少原128动态历史、内置方案重名和不安全的方案名。原始字段数量自动计算，输出固定为原128。`quality` 会额外启用3个质量通道；`missing_masks` 和 `events` 产生的编码通道不计入原始字段数量。解析后的完整方案、来源路径和文件SHA-256会冻结进 `plan.json`，训练恢复不依赖原清单文件继续存在。
+
 ## 后续初始化（不更新模型权重）
 
 复用已有all90完整218字段、四组共同起点的prepared数据即可，`contract.json`相同且入口会核验文件哈希。也可以用本目录 `prepare.py` 另建数据：
