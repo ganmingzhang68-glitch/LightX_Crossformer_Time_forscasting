@@ -97,6 +97,8 @@ def main() -> None:
                "boolean_loss": float(sums[2] / batches)}
         history.append(row); print(json.dumps(row, ensure_ascii=False), flush=True)
 
+    # A model release must retain its exact source order and 10s window contract.
+    (output / "feature_manifest.json").write_text(json.dumps(repository.manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     torch.save(model.state_dict(), output / "model.pth")
     np.savez_compressed(output / "scaler.npz", mean=mean, scale=scale)
     config = {"params": params, "fold_best_epochs": fold_epochs, "final_epochs": final_epochs,

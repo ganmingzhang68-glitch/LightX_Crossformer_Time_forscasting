@@ -13,6 +13,11 @@ ROOT = Path(__file__).resolve().parent
 
 
 def export_model(model_dir, output, experiment="matrix"):
+    if experiment not in ("matrix", "all90"):
+        raise ValueError("Unknown experiment")
+    package = "input_window_matrix_v1" if experiment == "matrix" else "all90_latency_v1"
+    if not (ROOT / "experiments" / package).is_dir():
+        raise ValueError("This branch does not contain that training experiment; see USAGE.md")
     if experiment == "matrix":
         from experiments.input_window_matrix_v1 import common, training, data, model
     elif experiment == "all90":
@@ -36,6 +41,7 @@ def export_model(model_dir, output, experiment="matrix"):
     output.mkdir(parents=True)
     runtime = output / "runtime"
     runtime.mkdir()
+    (output / ".gitattributes").write_bytes(b"* -text\n")
     (runtime / "__init__.py").write_text('"""Frozen inference implementation."""\n', encoding="utf-8")
     model_source = Path(model.__file__).read_text(encoding="utf-8").replace("from .vendor.crossformer", "from .crossformer")
     (runtime / "model.py").write_text(model_source, encoding="utf-8")

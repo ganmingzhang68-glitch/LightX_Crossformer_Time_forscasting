@@ -34,5 +34,6 @@
   ],
   "training_started": false,
   "server_connected": false,
-  "uploaded": false
+  "uploaded": false,
+  "superseded_by": "BRANCH_VALIDATION.json"
 }

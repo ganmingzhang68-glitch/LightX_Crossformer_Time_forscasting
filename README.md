@@ -1,3 +1,18 @@
+# LightX Crossformer：feature/custom-feature-manifest
+
+本分支用于：**内置与自定义特征清单×G1–G4，统一原128输出，串行训练**。
+
+**2026-11-10独立使用补齐：** 安装、原始数据转换、特征处理、训练、恢复及推理的完整步骤见 [USAGE.md](USAGE.md)。其他人不需要作者电脑路径或外部模型库。检查入口为 `python tools/check_install.py --training --models`，测试入口为 `python -m pytest -q`；本次验证不启动正式训练。
+
+- 新训练与推理任务统一10秒空档（2秒采样跳过5点，首个标签为+12秒）。历史Epoch45及30秒A/B/C/D结果仅为档案，不适用于新任务。
+- 自行训练需要用户自己的合法数据和CUDA环境；原始数据、数据库凭据及尚未训练的新模型权重不随Git发布。
+- ALL90的12套正式权重可通过根目录 [download_model.py](download_model.py) 按组和种子下载，自动校验文件。已有模型目录的分支也可直接使用模型内的独立 `predict.py`。
+- 已发布模型的权重、预处理器及运行时代码保留；原训练代码签名与本次更新后的新训练代码不同。旧运行使用原代码恢复，新实验另建队列，不手改签名。
+
+下面保留本分支此前的说明与历史实验记录；执行新流程请从 [独立使用指南](USAGE.md) 开始。
+
+---
+
 # LightX Crossformer 时间序列预测
 
 ALL90 的 G1–G4 正式训练权重现已发布：[12 套模型与使用说明](https://github.com/ganmingzhang68-glitch/LightX_Crossformer_Time_forscasting/tree/experiment/all90-latency-4groups/models/all90_20261110)。每组包含 3 个种子，输入为原128+新增90字段，输出原128字段，空档10秒。每套包含原始 `best.pt`、匹配的预处理器、特征顺序、配置及独立推理代码；可按说明下载后执行包内 `predict.py`，也可使用本分支的 `predict.py --bundle <模型目录>`。旧训练权重必须使用这些配套文件，不能用当前训练代码签名替换其原始签名。
