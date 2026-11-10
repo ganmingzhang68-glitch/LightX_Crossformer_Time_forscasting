@@ -19,7 +19,7 @@ def main() -> None:
         description="Confirm the selected 133-to-27 HPO parameters on larger fold samples."
     )
     parser.add_argument("--data-root", type=Path, required=True)
-    parser.add_argument("--library-root", type=Path, required=True)
+    parser.add_argument("--library-root", type=Path, default=None, help="Deprecated compatibility option; the repository backbone is always used")
     parser.add_argument("--targets", type=Path, required=True)
     parser.add_argument("--best-trial", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
@@ -68,7 +68,7 @@ def main() -> None:
                 repository,
                 contract,
                 fold_data[name],
-                args.library_root.resolve(),
+                args.library_root,
                 params,
                 output / name,
                 args.epochs,

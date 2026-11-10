@@ -16,7 +16,7 @@ def main() -> None:
     here = Path(__file__).resolve().parent
     parser = argparse.ArgumentParser(description="Train one final A/B/C/D model after HPO confirmation.")
     parser.add_argument("--data-root", type=Path, required=True)
-    parser.add_argument("--library-root", type=Path, required=True)
+    parser.add_argument("--library-root", type=Path, default=None, help="Deprecated compatibility option; the repository backbone is always used")
     parser.add_argument("--best-trial", type=Path, required=True)
     parser.add_argument("--confirmation-result", type=Path)
     parser.add_argument("--output", type=Path, required=True)
@@ -67,7 +67,7 @@ def main() -> None:
         args.max_train_windows_per_device or None, True)
     set_seed(args.seed)
     device = torch.device("cuda")
-    model = ExperimentModel(contract, args.library_root.resolve(), params, mean, scale).to(device)
+    model = ExperimentModel(contract, args.library_root, params, mean, scale).to(device)
     criterion = GroupedHuberLoss(params["huber_delta"], params["continuous_loss_weight"])
     optimizer = torch.optim.Adam(model.parameters(), lr=params["learning_rate"],
                                  weight_decay=params["weight_decay"])
@@ -97,6 +97,8 @@ def main() -> None:
                "boolean_loss": float(sums[2] / batches)}
         history.append(row); print(json.dumps(row, ensure_ascii=False), flush=True)
 
+    # A model release must retain its exact source order and 10s window contract.
+    (output / "feature_manifest.json").write_text(json.dumps(repository.manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     torch.save(model.state_dict(), output / "model.pth")
     np.savez_compressed(output / "scaler.npz", mean=mean, scale=scale)
     config = {"params": params, "fold_best_epochs": fold_epochs, "final_epochs": final_epochs,

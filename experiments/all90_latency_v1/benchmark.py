@@ -1,6 +1,13 @@
 """Paired device04 batch-1 latency for already trained, frozen models."""
 from __future__ import annotations
 
+# Preserve direct script execution while keeping imports package-scoped.
+if __package__ in (None, ""):
+    import sys as _sys
+    from pathlib import Path as _Path
+    _sys.path.insert(0, str(_Path(__file__).resolve().parents[2]))
+    __package__ = "experiments.all90_latency_v1"
+
 import argparse
 from contextlib import nullcontext
 import os
@@ -12,10 +19,10 @@ import numpy as np
 import pandas as pd
 import torch
 
-from common import contract, digest, safe_new_output, write_json
-from data import Repository, Windows
-from run import final_models
-from compare import timing_summary
+from .common import contract, digest, safe_new_output, write_json
+from .data import Repository, Windows
+from .run import final_models
+from .compare import timing_summary
 
 
 def stratified_indices(items, count):

@@ -14,7 +14,7 @@ def main() -> None:
     here = Path(__file__).resolve().parent
     parser = argparse.ArgumentParser(description="Confirm selected HPO parameters on larger fold samples.")
     parser.add_argument("--data-root", type=Path, required=True)
-    parser.add_argument("--library-root", type=Path, required=True)
+    parser.add_argument("--library-root", type=Path, default=None, help="Deprecated compatibility option; the repository backbone is always used")
     parser.add_argument("--best-trial", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--epochs", type=int, default=8)
@@ -46,7 +46,7 @@ def main() -> None:
                  args.max_train_windows_per_device, args.max_validation_windows_per_device)
                  for name in FOLDS}
     output.mkdir(parents=True)
-    results = [train_fold(repository, fold_data[name], args.library_root.resolve(), params,
+    results = [train_fold(repository, fold_data[name], args.library_root, params,
                output / name, args.epochs, min(args.patience, args.epochs), args.num_workers,
                args.seed + index, not args.no_amp) for index, name in enumerate(FOLDS)]
     objectives = np.asarray([r["best_metrics"]["objective_selected_27"] for r in results])

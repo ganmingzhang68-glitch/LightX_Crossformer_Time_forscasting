@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import shutil
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -35,7 +36,7 @@ FOLDS = {
 
 CADENCE_SECONDS = 2
 CONTEXT_POINTS = 150
-GAP_POINTS = 15
+GAP_POINTS = 5
 PREDICTION_POINTS = 60
 WINDOW_STRIDE_POINTS = 5
 MAX_FILL_MISSING_POINTS = 1
@@ -229,6 +230,10 @@ def merge_device(
     return merged[keep], summary
 
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from window_contract import validate_windows
+
+
 def build_windows(frame: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     total_points = CONTEXT_POINTS + GAP_POINTS + PREDICTION_POINTS
     records: list[dict] = []
@@ -267,6 +272,7 @@ def build_windows(frame: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     windows = pd.DataFrame(records)
     if windows.empty:
         raise RuntimeError(f"Device {frame.device_id.iloc[0]} has no usable windows")
+    validate_windows(windows, frame, str(frame.device_id.iloc[0]))
     return windows, {
         "candidate_windows": candidates,
         "excluded_for_imputed_target": excluded_imputed_target,

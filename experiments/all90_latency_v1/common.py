@@ -33,7 +33,12 @@ def file_hash(path):
 
 
 def code_identity():
-    return digest({p.relative_to(HERE).as_posix(): file_hash(p) for p in sorted(HERE.rglob("*.py"))})
+    # Hash shipped runtime files only. Virtual environments, tests, caches and outputs
+    # must not change checkpoint identity. Normalize newlines for cross-platform copies.
+    paths = list(HERE.glob("*.py")) + list((HERE / "vendor").glob("*.py"))
+    paths += [p for p in (HERE / "contract.json", HERE / "catalog.json") if p.exists()]
+    return digest({p.relative_to(HERE).as_posix(): hashlib.sha256(
+        p.read_bytes().replace(b"\r\n", b"\n")).hexdigest() for p in sorted(paths)})
 
 
 def contract(path=None):
