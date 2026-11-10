@@ -1,5 +1,12 @@
 """plan/init are CPU-only; explicit run trains ONE model at a time until completion."""
 from __future__ import annotations
+
+# Preserve direct script execution while keeping imports package-scoped.
+if __package__ in (None, ""):
+    import sys as _sys
+    from pathlib import Path as _Path
+    _sys.path.insert(0, str(_Path(__file__).resolve().parents[2]))
+    __package__ = "experiments.input_window_matrix_v1"
 import argparse
 import copy
 from contextlib import contextmanager, redirect_stdout, redirect_stderr
@@ -11,7 +18,7 @@ import sys
 import traceback
 from datetime import datetime, timezone
 
-from common import (HERE, contract, catalog, code_identity, digest, file_hash, read_json,
+from .common import (HERE, contract, catalog, code_identity, digest, file_hash, read_json,
                     write_json, safe_new_output, selected_profiles, load_feature_manifests,
                     runtime_contract, verify_signed)
 
@@ -73,7 +80,7 @@ def describe(plan):
 
 
 def initialize(args):
-    from data import Repository, split_jobs, fit_preprocessor, apply_shared_cohort
+    from .data import Repository, split_jobs, fit_preprocessor, apply_shared_cohort
     plan = make_plan(args.profiles, args.output_policy, args.seeds, args.epochs, args.patience,
                      args.train_cap, args.workers, getattr(args, "feature_manifest", None))
     c = contract()
@@ -167,8 +174,8 @@ def frozen_pair(output, plan, task, create=True):
 
 
 def train_task(output, plan, inputs, repo, task):
-    from data import Windows
-    from training import train
+    from .data import Windows
+    from .training import train
     p = plan["profiles"][task["profile"]]
     c = runtime_contract(contract(), p)
     selection = task["stage"] == "select"
@@ -276,7 +283,7 @@ def execute_queue(output, plan, inputs, repo, resume=False, task_runner=None, ve
 
 def run(args):
     import torch
-    from data import Repository, apply_shared_cohort
+    from .data import Repository, apply_shared_cohort
     output = args.output.resolve()
     with exclusive_lock(output):
         plan = read_json(output / "plan.json")

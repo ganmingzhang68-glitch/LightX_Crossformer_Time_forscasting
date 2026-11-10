@@ -1,5 +1,18 @@
 # LightX Crossformer 时间序列预测
 
+当前分支已统一可执行预测和训练入口为 **10秒空档**：跳过5个2秒采样点，首个标签位于最后输入时刻后的第12秒。历史A/B/C/D的30秒窗口必须重建，见 [迁移说明](experiments/latency_abcd_27/README.md)。
+
+`artifacts/` 中的Epoch45仍是历史无空档权重，不能变成10秒空档模型。`predict.py` 会拒绝它，必须传入重新训练并导出的10秒空档checkpoint及对应配置。下文Epoch45指标和原始任务说明仅描述历史发布包，不代表当前10秒空档模型的训练成绩。
+
+本分支现已支持完整仓库的统一测试和新模型独立导出。安装开发依赖并检查整个仓库：
+
+```bash
+python -m pip install -r requirements-dev.txt
+python -m pytest -q
+```
+
+代码签名只计算实际运行代码、主干和契约，排除虚拟环境、测试目录、缓存和输出，并统一LF/CRLF差异。请在仓库根目录创建 `.venv`；初始化后仍不得更改运行代码、契约、数据或训练预算。签名算法和包结构已更新，旧队列需在原代码版本中恢复；本版本的新实验应创建新队列，不能手改旧签名。
+
 这是用于 LightX SLM 3D 打印机 PLC 传感器的 Crossformer 部署项目。仓库包含最佳模型权重、固定特征契约、训练集归一化参数、原始 InfluxDB Parquet 预处理脚本和推理脚本，可以在其他同构设备上执行与训练阶段一致的预测任务。
 
 仓库现在有两套用途：
@@ -134,6 +147,34 @@ python -m pytest tests -q
 
 [`experiments/input_window_matrix_v1/README.md`](experiments/input_window_matrix_v1/README.md)
 
+## 导出与运行新训练模型
+
+完成训练后，将最终模型目录导出为独立包。导出会核查checkpoint、字段契约和代码身份，复制原模型与编码器，并验证导出前后的预测数值一致。输出目录必须全新且位于仓库和训练源目录之外。
+
+```bash
+# 在仓库根目录运行；该命令不会训练
+python export_model.py \
+  --model-dir /runs/matrix/models/ALL90/G4_300_10_60/seed_20260928 \
+  --output /exports/all90_g4 --experiment matrix
+
+python predict.py --bundle /exports/all90_g4 \
+  --input /data/aligned_numeric.parquet --output /results/latest.parquet \
+  --mode latest --device cpu
+```
+
+ALL90独立实验的模型使用 `--experiment all90`；预定义方案和自定义方案均使用 `matrix`。模型输出始终为原128字段。导出包包含权重、完整字段和预处理契约、冻结的模型/编码器、独立预测脚本、依赖清单和校验值。将整个包复制到另一台机器后，可以不带训练仓库运行：
+
+```bash
+cd /exports/all90_g4
+python -m pip install -r requirements.txt
+python predict.py --input /data/aligned_numeric.parquet \
+  --output /results/rolling.parquet --mode rolling --include-target --device cpu
+```
+
+输入是经过训练时相同对齐和类型处理的宽表CSV/Parquet，需要UTC时间、原128字段及所选新增字段；这不是原始Influx长表。日期字段应已转换为训练时的 `log1p` 年龄。带质量或事件分支的模型还必须提供 `observed_mask`、`new_observed`、`new_age_seconds`，不允许静默伪造质量量。建议保留 `device_id`、`job_id`、`segment_id`。预测和实际标签从最后输入后的+12秒开始；G1/G3到+130秒，G2/G4到+70秒。外部设备不能重新拟合scaler或类别词表。
+
+新实验的 `best.pt` 应通过上述导出流程使用，不能直接当作根目录旧发布模型的纯state_dict文件。旧Epoch45权重、历史30秒模型和代码签名不符的checkpoint不能通过修改配置冒充10秒模型。
+
 ## 输入数据
 
 ### 方式一：InfluxDB 下载的长表 Parquet
@@ -174,13 +215,15 @@ python prepare_influx.py \
 
 ## 预测最新 10 秒
 
-使用最后 150 个连续点预测其后的 5 个点：
+当前入口使用最后150个连续点，跳过5点，再预测5点。新模型配置必须声明 `forecast_gap_points: 5`、`forecast_gap_seconds: 10`、`cadence_seconds: 2` 和匹配的 `checkpoint_sha256`。模型应以同样空档训练；不能只修改旧模型配置或输出时间戳。
 
 ```bash
 python predict.py \
   --input outputs/external_device_prepared.parquet \
   --output outputs/latest_prediction.csv \
-  --mode latest
+  --mode latest \
+  --checkpoint /path/to/gap10/checkpoint.pth --config /path/to/gap10/model_config.json \
+  --manifest /path/to/gap10/feature_manifest.json --scaler /path/to/gap10/scaler.json
 ```
 
 输出包含：
@@ -192,7 +235,7 @@ python predict.py \
 
 ## 从头到尾滚动预测
 
-每 10 秒移动一次 300 秒窗口，并预测下一个 10 秒：
+每10秒移动一次300秒输入窗口，跳过10秒空档，再预测10秒。提供 `job_id`、`segment_id`、`device_id` 时，入口会先按身份分组，再排序去重与划分连续段，窗口不会跨身份边界。没有这些身份列时，只能按时间间断划段，调用方应确保输入已按任务隔离。
 
 ```bash
 python predict.py \
@@ -201,7 +244,9 @@ python predict.py \
   --mode rolling \
   --stride 5 \
   --batch-size 64 \
-  --include-target
+  --include-target \
+  --checkpoint /path/to/gap10/checkpoint.pth --config /path/to/gap10/model_config.json \
+  --manifest /path/to/gap10/feature_manifest.json --scaler /path/to/gap10/scaler.json
 ```
 
 `--include-target` 会为已存在于输入文件中的未来点增加 `actual__特征名` 列，便于计算外部设备指标。部署到实时流时使用 `latest` 模式，不需要真实未来值。

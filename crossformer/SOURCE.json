@@ -1,0 +1,7 @@
+{
+  "implementation": "Native Torch tensor layout version of the published Crossformer architecture",
+  "repository_source": "experiments/input_window_matrix_v1/vendor/crossformer.py",
+  "upstream": "THUML/Time-Series-Library",
+  "license": "MIT",
+  "compatibility": "Same state_dict keys and forecast architecture; four-argument legacy calls use the historical adapter."
+}

@@ -1,0 +1,4 @@
+-r requirements.txt
+-r experiments/input_window_matrix_v1/requirements.txt
+pytest>=8,<10
+optuna>=3.6,<5

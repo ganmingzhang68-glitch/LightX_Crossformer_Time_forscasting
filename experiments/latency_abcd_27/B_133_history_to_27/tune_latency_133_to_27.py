@@ -50,7 +50,7 @@ def sample_params(trial) -> dict:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--data-root", type=Path, required=True)
-    parser.add_argument("--library-root", type=Path, required=True)
+    parser.add_argument("--library-root", type=Path, default=None, help="Deprecated compatibility option; the repository backbone is always used")
     parser.add_argument("--targets", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--trials", type=int, default=8)

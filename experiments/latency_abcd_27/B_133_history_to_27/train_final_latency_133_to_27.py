@@ -23,7 +23,7 @@ def main() -> None:
         description="Train the final Crossformer with 133 inputs and 27 selected outputs."
     )
     parser.add_argument("--data-root", type=Path, required=True)
-    parser.add_argument("--library-root", type=Path, required=True)
+    parser.add_argument("--library-root", type=Path, default=None, help="Deprecated compatibility option; the repository backbone is always used")
     parser.add_argument("--targets", type=Path, required=True)
     parser.add_argument("--best-trial", type=Path, required=True)
     parser.add_argument("--confirmation-result", type=Path)
@@ -95,7 +95,7 @@ def main() -> None:
     if device.type != "cuda":
         raise RuntimeError("Final 133-to-27 training requires CUDA")
     model = SelectedOutputCrossformer(
-        args.library_root.resolve(), params, contract.input_indices
+        args.library_root, params, contract.input_indices
     ).to(device)
     criterion = GroupedTargetHuberLoss(
         float(params["huber_delta"]), float(params["continuous_loss_weight"])

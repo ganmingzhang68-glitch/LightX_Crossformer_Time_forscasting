@@ -9,15 +9,15 @@ import pandas as pd
 import pytest
 import torch
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from common import contract, digest
-from build_contract import build
-from prepare import numeric_snapshot, regularize, fuse, common_windows
-from data import Encoder, fit_preprocessor, Windows, split_jobs
-from model import ForecastModel
-from metrics import Accumulator
-from compare import latency_stats, timing_summary, quality_summary
-from benchmark import stratified_indices
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+from experiments.all90_latency_v1.common import contract, digest
+from experiments.all90_latency_v1.build_contract import build
+from experiments.all90_latency_v1.prepare import numeric_snapshot, regularize, fuse, common_windows
+from experiments.all90_latency_v1.data import Encoder, fit_preprocessor, Windows, split_jobs
+from experiments.all90_latency_v1.model import ForecastModel
+from experiments.all90_latency_v1.metrics import Accumulator
+from experiments.all90_latency_v1.compare import latency_stats, timing_summary, quality_summary
+from experiments.all90_latency_v1.benchmark import stratified_indices
 
 
 @pytest.fixture
@@ -204,7 +204,7 @@ def test_timing_pairs_quantiles_and_job_sampling():
 
 
 def test_no_cpu_training_entrypoint(c, tmp_path, monkeypatch):
-    from training import train
+    from experiments.all90_latency_v1.training import train
     monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
     with pytest.raises(RuntimeError, match="CUDA"):
         train(None, None, c, "G1_300_10_120", None, None, tmp_path / "no_run", 1, 1, 1)
@@ -232,10 +232,10 @@ def test_quality_comparison_common_horizon_and_unpaired_rejection():
 
 
 def test_selection_orchestration_freezes_all_groups_without_training(c, tmp_path, monkeypatch):
-    import data
-    import training
-    import run
-    from common import read_json
+    from experiments.all90_latency_v1 import data
+    from experiments.all90_latency_v1 import training
+    from experiments.all90_latency_v1 import run
+    from experiments.all90_latency_v1.common import read_json
     repo = repo_fixture(c)
     monkeypatch.setattr(data, "Repository", lambda *args, **kwargs: repo)
     calls = []
@@ -258,9 +258,9 @@ def test_selection_orchestration_freezes_all_groups_without_training(c, tmp_path
 
 
 def test_sharded_prepare_and_repository_roundtrip(c, tmp_path):
-    from prepare import prepare
-    from data import Repository
-    from common import write_json
+    from experiments.all90_latency_v1.prepare import prepare
+    from experiments.all90_latency_v1.data import Repository
+    from experiments.all90_latency_v1.common import write_json
     old_root, added_root, output = tmp_path / "old", tmp_path / "added", tmp_path / "prepared"
     old_root.mkdir()
     added_root.mkdir()

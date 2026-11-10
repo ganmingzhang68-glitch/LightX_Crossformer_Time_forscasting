@@ -1,5 +1,12 @@
 """Explicit quality/latency commands, only after the entire training queue is complete."""
 from __future__ import annotations
+
+# Preserve direct script execution while keeping imports package-scoped.
+if __package__ in (None, ""):
+    import sys as _sys
+    from pathlib import Path as _Path
+    _sys.path.insert(0, str(_Path(__file__).resolve().parents[2]))
+    __package__ = "experiments.input_window_matrix_v1"
 import argparse
 import gc
 from pathlib import Path
@@ -8,11 +15,11 @@ import numpy as np
 import pandas as pd
 import torch
 
-from common import contract, digest, read_json, write_json, safe_new_output
-from train_queue import verify_plan, artifact_record
-from data import Repository, Windows, apply_shared_cohort
-from training import load_model, loader
-from metrics import evaluate
+from .common import contract, digest, read_json, write_json, safe_new_output
+from .train_queue import verify_plan, artifact_record
+from .data import Repository, Windows, apply_shared_cohort
+from .training import load_model, loader
+from .metrics import evaluate
 
 
 def completed_queue(output):

@@ -81,3 +81,19 @@ CPU 计时使用单独目录，并指定 `--device cpu --threads 1 --precision f
 2026-09-29：加入 G4 后，16 项本地测试通过。测试覆盖全90来源契约、日期/结果的未来屏蔽、缺失掩码、训练侧统计隔离、四组相同起点与标签边界、四组 CPU 前向、分片构造与哈希校验、8 项配对质量比较及12次替身训练编排。
 
 原工作区版本对 01/02/03 各抽查一个 12 分钟真实片段，每设备得到 360 个融合点和 30 个共同窗口，全部218字段及四组编码均通过。未执行优化器更新、CUDA训练、全量构造、04评估或正式计时。`VALIDATION.json` 区分本次 Git 打包复测与原工作区真实片段检查，后者的完整本地证据不随分支上传。
+
+
+## 交付版本的导出与测试
+
+本版本采用包内相对导入，可与其他实验一起在仓库根目录执行 `python -m pytest -q`。原直接脚本命令仍可用，也可使用 `python -m experiments.all90_latency_v1.run ...`。请保留完整仓库结构。
+
+代码签名排除环境、测试目录、缓存和输出，仅计算运行代码、主干及字段契约，并统一LF/CRLF换行；修改实际代码或字段仍会拒绝旧签名。该实现升级后不能用新签名覆盖旧队列，历史训练需用原代码版本恢复。
+
+在仓库根目录导出本实验的最终模型（不会训练）：
+
+```bash
+python export_model.py --experiment all90 --model-dir /runs/all90/models/G4_300_10_60/seed_20260928 --output /exports/all90_g4
+python predict.py --bundle /exports/all90_g4 --input /data/aligned_numeric.parquet --output /results/predictions.parquet --mode rolling --include-target --device cpu
+```
+
+实际 `--model-dir` 必须指向包含 `best.pt`、`spec.json`、`result.json` 的最终模型目录。导出后整个目录可迁移到另一台机器，使用包内 `predict.py` 独立预测，不依赖训练代码。输入必须与训练时一致地完成2秒对齐、日期年龄编码和质量标记，完整格式见根目录README。旧无空档/30秒权重和代码不匹配的checkpoint不能通过修改元数据导出。

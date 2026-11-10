@@ -1,13 +1,20 @@
 """Paired whole-task uncertainty; never selects epochs or weights using device04."""
 from __future__ import annotations
 
+# Preserve direct script execution while keeping imports package-scoped.
+if __package__ in (None, ""):
+    import sys as _sys
+    from pathlib import Path as _Path
+    _sys.path.insert(0, str(_Path(__file__).resolve().parents[2]))
+    __package__ = "experiments.all90_latency_v1"
+
 import argparse
 from pathlib import Path
 import itertools
 import numpy as np
 import pandas as pd
 
-from common import read_json, write_json
+from .common import read_json, write_json
 
 
 def bootstrap_mean(values, repetitions=2000, seed=20260928):

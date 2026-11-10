@@ -9,7 +9,23 @@ import numpy as np
 import pandas as pd
 import torch
 
-from crossformer import Crossformer, CrossformerConfig
+from forecast_windows import contiguous_segments
+
+GAP_POINTS = 5
+CADENCE_SECONDS = 2
+LEGACY_CHECKPOINT_SHA256 = "8365b802d2fef8bc8d5c54f7398ff74459cc1b987664ddf4db0ef0e8351aee11"
+
+
+def validate_prediction_contract(raw_config, checkpoint):
+    if (type(raw_config.get("forecast_gap_points")) is not int or
+            raw_config["forecast_gap_points"] != GAP_POINTS or
+            raw_config.get("forecast_gap_seconds") != 10 or raw_config.get("cadence_seconds") != CADENCE_SECONDS):
+        raise ValueError("Prediction requires a model trained with a 10s gap (5 skipped 2s points). The bundled Epoch45 model has no gap; retrain/export a new model.")
+    actual = hashlib.sha256(Path(checkpoint).read_bytes()).hexdigest()
+    if actual == LEGACY_CHECKPOINT_SHA256:
+        raise ValueError("Epoch45 was trained without a gap; changing its config cannot make it a 10s-gap model")
+    if actual != raw_config.get("checkpoint_sha256"):
+        raise ValueError("Checkpoint SHA-256 differs from the 10s-gap model configuration")
 
 
 def load_checkpoint(path: Path):
@@ -32,17 +48,6 @@ def choose_time_column(frame: pd.DataFrame) -> str:
     raise ValueError("Input must contain one timestamp column: time_beijing, time_utc, or time")
 
 
-def contiguous_segments(frame: pd.DataFrame, time_column: str):
-    timestamps = pd.to_datetime(frame[time_column], utc=True)
-    order = np.argsort(timestamps.to_numpy(), kind="stable")
-    frame = frame.iloc[order].reset_index(drop=True)
-    timestamps = timestamps.iloc[order].reset_index(drop=True)
-    duplicate = timestamps.duplicated(keep="last")
-    frame = frame.loc[~duplicate].reset_index(drop=True)
-    timestamps = timestamps.loc[~duplicate].reset_index(drop=True)
-    labels = timestamps.diff().dt.total_seconds().ne(2).cumsum()
-    for _, indices in frame.groupby(labels, sort=True).groups.items():
-        yield frame.loc[indices].reset_index(drop=True), timestamps.loc[indices].reset_index(drop=True)
 
 
 def make_windows(
@@ -65,19 +70,20 @@ def make_windows(
     if mode == "latest":
         starts = [len(values) - sequence_length]
     else:
-        final_start = len(values) - sequence_length - prediction_length
+        final_start = len(values) - sequence_length - GAP_POINTS - prediction_length
         starts = range(0, final_start + 1, stride) if final_start >= 0 else []
     windows = []
     for start in starts:
         end = start + sequence_length
+        future = end + GAP_POINTS
         # Match validation-time scoring: a rolling forecast is included only
         # when every target row is an original database timestamp. Context may
         # contain the explicitly permitted one-point interpolation.
-        if mode == "rolling" and not observed[end : end + prediction_length].all():
+        if mode == "rolling" and not observed[future : future + prediction_length].all():
             continue
         targets = None
-        if end + prediction_length <= len(values):
-            targets = values[end : end + prediction_length]
+        if future + prediction_length <= len(values):
+            targets = values[future : future + prediction_length]
         windows.append((values[start:end], timestamps.iloc[end - 1], targets))
     return windows
 
@@ -85,6 +91,7 @@ def make_windows(
 def main() -> None:
     root = Path(__file__).resolve().parent
     parser = argparse.ArgumentParser(description="Run the trained LightX Crossformer on another device.")
+    parser.add_argument("--bundle", type=Path, help="Standalone matrix/ALL90 export directory")
     parser.add_argument("--input", type=Path, required=True, help="Prepared wide CSV or Parquet")
     parser.add_argument("--output", type=Path, required=True, help="Prediction CSV or Parquet")
     parser.add_argument("--mode", choices=("latest", "rolling"), default="latest")
@@ -99,9 +106,16 @@ def main() -> None:
     args = parser.parse_args()
     if args.stride <= 0 or args.batch_size <= 0:
         raise ValueError("stride and batch-size must be positive")
+    if args.bundle is not None:
+        from portable_inference import predict_file
+        print(json.dumps(predict_file(args.bundle, args.input, args.output, args.mode, args.stride,
+                         args.batch_size, args.device, args.include_target), ensure_ascii=False, indent=2))
+        return
     manifest = json.loads(args.manifest.read_text(encoding="utf-8"))
     scaler = json.loads(args.scaler.read_text(encoding="utf-8"))
     raw_config = json.loads(args.config.read_text(encoding="utf-8"))
+    validate_prediction_contract(raw_config, args.checkpoint)
+    from crossformer import Crossformer, CrossformerConfig
     features = list(manifest["feature_order"])
     if features != list(scaler["feature_order"]):
         raise ValueError("Scaler and feature manifest orders differ")
@@ -169,7 +183,7 @@ def main() -> None:
             for horizon in range(config.pred_len):
                 record = {
                     "forecast_origin_time": origin,
-                    "prediction_time": origin + cadence * (horizon + 1),
+                    "prediction_time": origin + cadence * (GAP_POINTS + horizon + 1),
                     "horizon_step": horizon + 1,
                 }
                 record.update(zip(features, prediction[batch_index, horizon].tolist()))
@@ -194,6 +208,8 @@ def main() -> None:
         "feature_count": len(features),
         "context_points": config.seq_len,
         "prediction_points": config.pred_len,
+        "forecast_gap_points": GAP_POINTS,
+        "forecast_gap_seconds": GAP_POINTS * CADENCE_SECONDS,
         "device": str(device),
         "checkpoint_sha256": checkpoint_sha256,
     }, ensure_ascii=False, indent=2, default=str))

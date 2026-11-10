@@ -2,6 +2,8 @@
 
 2026-10-13 建立实验代码，2026-10-19 增加自定义特征清单。用户已明确要求：**所有新模型统一输出原128字段（56连续、72布尔），四个时间窗口均要训练。**
 
+2026-10-26：仓库的可执行预测/训练入口统一要求10秒空档；本目录G1–G4原本就是5点空档，标签位置保持不变。历史A/B/C/D入口新增强制窗口检查，旧30秒数据需要重建；根目录 `predict.py` 新增身份分段和10秒空档验证，并拒绝无空档Epoch45权重。本次修改不重新训练任何模型。
+
 本目录提交的是训练、恢复和评估代码以及CPU/替身检查结果，不包含由该矩阵新训练出的checkpoint。旧 Epoch45、A/B/C/D、new90 和已完成 all90 的代码、权重、数据均保留；服务器上是否存在历史队列应以服务器实时状态为准。
 
 ## 已核实的历史输入
@@ -35,9 +37,10 @@ cd LightX_Crossformer_Time_forscasting
 git switch feature/custom-feature-manifest
 cd experiments/input_window_matrix_v1
 
-python -m venv .venv
-source .venv/bin/activate
-# Windows PowerShell: .venv\Scripts\Activate.ps1
+# 建议先在仓库根目录创建环境，再进入本目录；此处创建到仓库根目录
+python -m venv ../../.venv
+source ../../.venv/bin/activate
+# Windows PowerShell: ..\..\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 python -m pytest tests -q
@@ -52,6 +55,10 @@ python -m pytest tests -q
 5. 用 `train_queue.py run` 在CUDA上逐个训练，完成后再单独评估设备04。
 
 Git仓库不包含原始训练数据、准备后的训练数据、InfluxDB凭据或新模型权重。只有代码和字段契约并不足以直接开始训练。
+
+本版本使用包内相对导入，可从仓库根目录统一运行 `python -m pytest -q`，也可在本目录运行 `python -m pytest tests -q`。直接脚本命令与 `python -m experiments.input_window_matrix_v1.train_queue ...` 均可用。请保留完整仓库结构，避免只复制几个Python文件。
+
+签名只计算本目录顶层运行代码、vendor主干及JSON契约，排除 `.venv`、测试、缓存和输出，并统一LF/CRLF换行。修改实际代码或契约仍会拒绝旧队列续跑。该版本更新了包结构及签名算法，历史队列需使用原代码版本，本版本应新建队列。
 
 ## 训练数据要求
 
@@ -396,6 +403,21 @@ python evaluate04.py benchmark --model-root /path/to/new_matrix/run --data-root 
 10. **推理延迟需在目标环境实测。** 特征数、条件GRU、缺失掩码和事件通道都会改变参数量与延迟。训练服务器GPU计时不等于设备04实际部署硬件计时。
 11. **不要提交数据和凭据。** 原始Parquet、prepared目录、checkpoint、SSH密码和数据库token应保存在Git仓库之外。
 12. **新checkpoint不是根目录发布包。** 实验模型需要使用本目录的运行契约加载和评估；在完成独立导出、验证和版本化前，不要覆盖根目录 `artifacts/`。
+
+## 最终模型导出和独立推理
+
+完整矩阵训练完成后，回到仓库根目录运行：
+
+```bash
+python export_model.py --experiment matrix \
+  --model-dir /runs/matrix/models/ALL90/G4_300_10_60/seed_20260928 \
+  --output /exports/all90_g4
+
+python predict.py --bundle /exports/all90_g4 --input /data/aligned_numeric.parquet \
+  --output /results/predictions.parquet --mode rolling --include-target --device cpu
+```
+
+导出支持所有内置和自定义输入方案、类别embedding、缺失掩码、质量分支和事件编码；四种时间窗口保持原训练定义。复制整个导出目录后，可直接运行包中的 `predict.py`，不依赖训练目录、原队列路径或外部模型库。详细输入要求见仓库根README的“导出与运行新训练模型”。导出时必须使用与训练checkpoint匹配的代码和契约，旧代码产物不能手改签名导出。
 
 ## 本次验证边界
 

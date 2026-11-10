@@ -1,0 +1,38 @@
+{
+  "checked_date": "2026-11-10",
+  "timezone": "Asia/Shanghai",
+  "status": "passed_cpu_delivery_checks",
+  "tests": {
+    "command": "python -m pytest -p no:cacheprovider -q",
+    "passed": 72,
+    "failed": 0,
+    "original_tests": 48,
+    "delivery_tests": 24,
+    "optimizer_steps": 0
+  },
+  "matrix_code_sha": "1439129bf985bcac33704f2f3459c4c2724b9e878f01dc2e9214e6665a4435b3",
+  "all90_code_sha": "bf13337b70f14a211925f2582957f1a1ca4c73db8ca041b600d602d38e9ba4e1",
+  "verified": [
+    "unified repository test collection",
+    "virtual environment/cache/output exclusion from code identity",
+    "cross-platform newline normalization",
+    "bundled historical A/B/C/D backbone forwards",
+    "strict Epoch45 checkpoint loading with native Torch backbone",
+    "matrix/ALL90 export numerical roundtrip across G1-G4",
+    "conditional/category/mask/quality/event inference",
+    "standalone exported bundle and root --bundle CLI outside training directory",
+    "10s gap timestamps and aligned actual labels",
+    "model bundle checksum rejection"
+  ],
+  "python_files_syntax_checked": 67,
+  "broken_relative_document_links": 0,
+  "limitations": [
+    "CPU only; CUDA training/backward not performed",
+    "No real full-dataset training or new model-quality results",
+    "Optuna requirement declared; no HPO optimization was run",
+    "Existing signed training queues require their original code version"
+  ],
+  "training_started": false,
+  "server_connected": false,
+  "uploaded": false
+}

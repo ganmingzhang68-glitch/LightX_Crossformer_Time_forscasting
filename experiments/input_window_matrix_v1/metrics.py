@@ -1,6 +1,13 @@
 """Full/common-60s quality, per-feature/task/lead metrics and persistence."""
 from __future__ import annotations
 
+# Preserve direct script execution while keeping imports package-scoped.
+if __package__ in (None, ""):
+    import sys as _sys
+    from pathlib import Path as _Path
+    _sys.path.insert(0, str(_Path(__file__).resolve().parents[2]))
+    __package__ = "experiments.input_window_matrix_v1"
+
 import numpy as np
 import torch
 
@@ -75,7 +82,7 @@ class Accumulator:
 
 def evaluate(model, loader, c, pre, device, precision="fp32", detailed=True):
     from contextlib import nullcontext
-    from common import catalog
+    from .common import catalog
     target_indices = [c["source_features"].index(f) for f in c["targets"]]
     mean, scale = np.asarray(pre["mean"])[target_indices], np.asarray(pre["scale"])[target_indices]
     target_positions = [c["profile"]["dynamic"].index(f) for f in c["targets"]]
