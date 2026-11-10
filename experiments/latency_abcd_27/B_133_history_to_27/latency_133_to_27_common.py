@@ -13,6 +13,7 @@ from torch.utils.data import Dataset
 
 from latency_fusion_common import (
     ExperimentRepository,
+    validate_geometry,
     build_model,
     evenly_spaced_indices,
     make_loader,
@@ -62,6 +63,7 @@ class SelectedTargetWindowDataset(Dataset):
         arrays, codes, past, future_start, future_end = [], [], [], [], []
         selected_counts = {}
         for code, device in enumerate(devices):
+            validate_geometry(windows[device], len(scaled_values[device]))
             frame = windows[device]
             positions = evenly_spaced_indices(len(frame), target)
             selected = frame.iloc[positions]

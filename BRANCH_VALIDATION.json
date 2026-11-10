@@ -1,0 +1,45 @@
+{
+  "checked_date": "2026-11-10",
+  "timezone": "Asia/Shanghai",
+  "branch": "experiment/latency-abcd-27",
+  "base_sha": "8d998754a89d141f6ad592102ccaed0d328c7c7c",
+  "status": "passed_cpu_portability_checks",
+  "tests": {
+    "branch": "abcd",
+    "returncode": 0,
+    "tests": 24,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 2,
+    "seconds": 40.23,
+    "passed": 22
+  },
+  "cli_checks": 21,
+  "all_cli_checks_passed": true,
+  "environment": {
+    "numpy": "1.26.4",
+    "pandas": "2.2.2",
+    "pyarrow": "16.1.0",
+    "duckdb": "1.5.6",
+    "torch": "2.8.0+cpu",
+    "optuna": "4.9.0"
+  },
+  "environment_scope": "Dedicated venv with existing system scientific packages; declared missing DuckDB and Optuna installed inside the venv",
+  "verified": [
+    "Original128 wide and Influx-long sources to unscaled training-source splits",
+    "CSV job matching, UTC conversion, chunked row numbering and optional platform field",
+    "ABC133 and D134 datasets with10s gap, fold scalers and27-output forward predictions",
+    "Task boundaries and gap timestamp regression checks",
+    "Published Epoch45 exact checkpoint load with native Torch backbone"
+  ],
+  "training_started": false,
+  "optimizer_steps": 0,
+  "cuda_available": false,
+  "cuda_training_or_backward_verified": false,
+  "raw_device_data_published": false,
+  "limitations": [
+    "CPU forward and synthetic preparation only; no new training or quality/latency result",
+    "Users supply data matching the frozen PLC semantics and an appropriate CUDA environment",
+    "New10s ABCD and input-matrix models have no published trained checkpoint; train before their inference"
+  ]
+}

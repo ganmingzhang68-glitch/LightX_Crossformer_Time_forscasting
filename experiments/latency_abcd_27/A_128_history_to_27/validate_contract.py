@@ -2,10 +2,16 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
 import numpy as np
 import pyarrow.parquet as pq
+
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from window_contract import validate_manifest, validate_windows
+import pandas as pd
 
 
 def main() -> None:
@@ -17,6 +23,7 @@ def main() -> None:
     targets = json.loads((here / spec["target_contract"]).read_text(encoding="utf-8"))
     root = args.data_root.resolve()
     manifest = json.loads((root / "feature_manifest.json").read_text(encoding="utf-8"))
+    validate_manifest(manifest)
     source = list(manifest["feature_order"]); old = list(manifest["old_features"])
     dynamic = old if spec["dynamic_feature_policy"] == "old_features" else old + list(spec["dynamic_extra_features"])
     conditions = list(spec.get("condition_features", []))
@@ -38,9 +45,10 @@ def main() -> None:
         windows = windows_file.read(columns=["past_start_row", "past_end_row_exclusive",
                                              "future_start_row", "future_end_row_exclusive"]).to_pydict()
         valid = (all(b - a == 150 for a, b in zip(windows["past_start_row"], windows["past_end_row_exclusive"]))
-                 and all(a - b == 15 for a, b in zip(windows["future_start_row"], windows["past_end_row_exclusive"]))
+                 and all(a - b == 5 for a, b in zip(windows["future_start_row"], windows["past_end_row_exclusive"]))
                  and all(b - a == 60 for a, b in zip(windows["future_start_row"], windows["future_end_row_exclusive"])))
         if not valid: errors.append(f"{device} window geometry")
+        validate_windows(pd.read_parquet(windows_path), pd.read_parquet(rows_path), device)
         device_rows[device] = {"rows": int(rows_file.metadata.num_rows),
                                "windows": int(windows_file.metadata.num_rows)}
     for fold in (*FOLDS, "final"):

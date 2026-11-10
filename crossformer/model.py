@@ -1,3 +1,4 @@
+# Independent snapshot; einops-only tensor layout operations replaced with native Torch.
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -6,7 +7,6 @@ from math import ceil, log, sqrt
 import numpy as np
 import torch
 import torch.nn as nn
-from einops import rearrange, repeat
 
 
 @dataclass(frozen=True)
@@ -173,19 +173,19 @@ class TwoStageAttentionLayer(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         batch = x.shape[0]
-        time_input = rearrange(x, "b d s m -> (b d) s m")
+        time_input = x.flatten(0, 1)
         time_encoded, _ = self.time_attention(time_input, time_input, time_input)
         dimension_input = self.norm1(time_input + self.dropout(time_encoded))
         dimension_input = self.norm2(dimension_input + self.dropout(self.MLP1(dimension_input)))
-        dimension_send = rearrange(dimension_input, "(b d) s m -> (b s) d m", b=batch)
-        routers = repeat(self.router, "s f m -> (b s) f m", b=batch)
+        dimension_send = dimension_input.reshape(batch, -1, dimension_input.shape[1], dimension_input.shape[2]).permute(0, 2, 1, 3).flatten(0, 1)
+        routers = self.router.unsqueeze(0).expand(batch, -1, -1, -1).flatten(0, 1)
         buffer, _ = self.dim_sender(routers, dimension_send, dimension_send)
         received, _ = self.dim_receiver(dimension_send, buffer, buffer)
         dimension_encoded = self.norm3(dimension_send + self.dropout(received))
         dimension_encoded = self.norm4(
             dimension_encoded + self.dropout(self.MLP2(dimension_encoded))
         )
-        return rearrange(dimension_encoded, "(b s) d m -> b d s m", b=batch)
+        return dimension_encoded.reshape(batch, -1, dimension_encoded.shape[1], dimension_encoded.shape[2]).permute(0, 2, 1, 3)
 
 
 class SegMerging(nn.Module):
@@ -252,15 +252,15 @@ class DecoderLayer(nn.Module):
     def forward(self, x: torch.Tensor, cross: torch.Tensor):
         batch = x.shape[0]
         x = self.self_attention(x)
-        x = rearrange(x, "b d s m -> (b d) s m")
-        cross = rearrange(cross, "b d s m -> (b d) s m")
+        x = x.flatten(0, 1)
+        cross = cross.flatten(0, 1)
         temporary, _ = self.cross_attention(x, cross, cross)
         x = x + self.dropout(temporary)
         prediction_input = x = self.norm1(x)
         prediction_input = self.MLP1(prediction_input)
         decoded = self.norm2(x + prediction_input)
-        decoded = rearrange(decoded, "(b d) s m -> b d s m", b=batch)
-        layer_prediction = rearrange(self.linear_pred(decoded), "b d s l -> b (d s) l")
+        decoded = decoded.reshape(batch, -1, decoded.shape[1], decoded.shape[2])
+        layer_prediction = self.linear_pred(decoded).flatten(1, 2)
         return decoded, layer_prediction
 
 
@@ -278,7 +278,7 @@ class Decoder(nn.Module):
                 layer_prediction if final_prediction is None
                 else final_prediction + layer_prediction
             )
-        return rearrange(final_prediction, "b (d s) l -> b (s l) d", d=dimensions)
+        return final_prediction.reshape(final_prediction.shape[0], dimensions, -1, final_prediction.shape[-1]).permute(0, 2, 3, 1).flatten(1, 2)
 
 
 class Crossformer(nn.Module):
@@ -354,10 +354,10 @@ class Crossformer(nn.Module):
         elif self.residual_forecast:
             x = x - residual_base
         x, dimensions = self.enc_value_embedding(x.permute(0, 2, 1))
-        x = rearrange(x, "(b d) s m -> b d s m", d=dimensions)
+        x = x.reshape(-1, dimensions, x.shape[1], x.shape[2])
         x = self.pre_norm(x + self.enc_pos_embedding)
         encoded, _ = self.encoder(x)
-        decoder_input = repeat(self.dec_pos_embedding, "b d s m -> (r b) d s m", r=x.shape[0])
+        decoder_input = self.dec_pos_embedding.repeat(x.shape[0], 1, 1, 1)
         output = self.decoder(decoder_input, encoded)
         if self.use_revin:
             output = self.revin(output, "denorm")

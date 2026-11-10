@@ -16,6 +16,10 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader, Dataset
 
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from window_contract import validate_manifest, validate_geometry, validate_windows
+
+
 FOLDS = ("fold_a", "fold_b", "fold_c")
 CONTEXT_POINTS = 150
 PREDICTION_POINTS = 60
@@ -108,6 +112,9 @@ class ExperimentContract:
     def describe(self) -> dict:
         return {
             "experiment_id": self.spec["experiment_id"],
+            "forecast_gap_points": 5,
+            "forecast_gap_seconds": 10,
+            "cadence_seconds": 2,
             "source_feature_count": len(self.source_features),
             "total_input_fields": self.input_field_count,
             "dynamic_history_fields": len(self.dynamic_features),
@@ -124,6 +131,7 @@ class ExperimentRepository:
     def __init__(self, contract: ExperimentContract, include_external: bool = False):
         self.contract = contract
         self.manifest = contract.manifest
+        validate_manifest(self.manifest)
         devices = list(self.manifest["training_devices"])
         if include_external:
             devices.append(self.manifest["external_test_device"])
@@ -132,7 +140,8 @@ class ExperimentRepository:
         self.windows: dict[str, pd.DataFrame] = {}
         for device in devices:
             root = contract.data_root / "devices" / device
-            frame = pd.read_parquet(root / "rows.parquet", columns=contract.source_features)
+            rows = pd.read_parquet(root / "rows.parquet")
+            frame = rows[contract.source_features]
             values = frame.to_numpy(dtype=np.float32, copy=True)
             if not np.isfinite(values).all():
                 raise ValueError(f"Non-finite source values for {device}")
@@ -146,6 +155,7 @@ class ExperimentRepository:
                 - windows.future_start_row.to_numpy() == PREDICTION_POINTS
             ):
                 raise ValueError(f"Unexpected forecast length for {device}")
+            validate_windows(windows, rows, device)
             self.raw_values[device] = values
             self.windows[device] = windows
 
@@ -174,6 +184,7 @@ class ExperimentWindowDataset(Dataset):
         arrays, codes, past, start, end = [], [], [], [], []
         self.selected_counts = {}
         for code, name in enumerate(devices):
+            validate_geometry(windows[name], len(scaled_values[name]))
             chosen = windows[name].iloc[evenly_spaced_indices(counts[name], limit)]
             arrays.append(scaled_values[name])
             codes.append(np.full(len(chosen), code, dtype=np.int16))
@@ -247,22 +258,10 @@ def make_loader(dataset: Dataset, batch_size: int, shuffle: bool,
                       persistent_workers=num_workers > 0, generator=generator)
 
 
-def build_crossformer(library_root: Path, params: dict, enc_in: int) -> nn.Module:
-    root = str(library_root.resolve())
-    if root not in sys.path:
-        sys.path.insert(0, root)
-    from models.Crossformer import Model
-    config = SimpleNamespace(
-        enc_in=enc_in, seq_len=CONTEXT_POINTS, pred_len=PREDICTION_POINTS,
-        task_name="long_term_forecast", d_model=int(params["d_model"]),
-        n_heads=int(params["n_heads"]), e_layers=int(params["e_layers"]),
-        d_ff=int(params["d_ff"]), factor=int(params["factor"]),
-        dropout=float(params["dropout"]),
-        crossformer_seg_len=int(params["crossformer_seg_len"]),
-        crossformer_win_size=2, use_revin=True,
-        revin_affine=bool(params["revin_affine"]), residual_forecast=True,
-    )
-    return Model(config).float()
+def build_crossformer(library_root, params: dict, enc_in: int) -> nn.Module:
+    # library_root remains a deprecated CLI/API argument; no external code is imported.
+    from backbone import build_backbone
+    return build_backbone(params, enc_in)
 
 
 class ConditionEncoder(nn.Module):
