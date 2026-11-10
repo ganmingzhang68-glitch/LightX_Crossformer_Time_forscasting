@@ -1,0 +1,17 @@
+{
+  "date": "2026-11-10",
+  "models": 12,
+  "raw_inputs": 218,
+  "outputs": 128,
+  "gap_seconds": 10,
+  "source_code_sha": "cdc770138f6d5ee32989c80257dc238d52ebc812cfdfff9838efa58dd94de540",
+  "checkpoint_hashes_match_experiment": true,
+  "strict_load_all_12": true,
+  "numerical_comparison_max_abs_error": 0.0,
+  "synthetic_history_only": true,
+  "training_started": false,
+  "standalone_actual_checkpoint_inference": true,
+  "standalone_output_features": 128,
+  "standalone_first_lead_seconds": 12,
+  "standalone_last_lead_seconds": 70
+}

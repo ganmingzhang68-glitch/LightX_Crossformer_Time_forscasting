@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "experiment_id": "C_129_history_plus_4_conditions_to_27",
+  "description": "Old 128 plus print layer use the historical Crossformer branch; four setpoints use a separate absolute-level condition branch.",
+  "expected_source_feature_count": 133,
+  "dynamic_feature_policy": "old_features_plus_named",
+  "dynamic_extra_features": ["打印层数"],
+  "condition_features": ["设松粉S", "设铺粉模式", "设前螺旋时长", "设后螺旋时长"],
+  "categorical_condition_features": ["设铺粉模式"],
+  "categorical_values": {"设铺粉模式": [0, 1]},
+  "target_contract": "selected_targets_27.json",
+  "device04_is_clean_external_test": false
+}

@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "source": "output/feature_selection/Crossformer_next_round_selected_features.md",
+  "selection_note": "These targets were historically selected using device-04 evaluation and therefore device 04 is not a clean external test for this experiment.",
+  "continuous_features": [
+    "H13压差(mBar)",
+    "保护气体压力(Bar)",
+    "前螺旋扭矩(Nm)",
+    "压缩空气压力(Bar)",
+    "后螺旋扭矩(Nm)",
+    "平台轴1扭矩(Nm)",
+    "平台轴2扭矩(Nm)",
+    "平台轴3扭矩(Nm)",
+    "拖换扭矩(Nm)",
+    "洁净室压力(mBar)",
+    "管道压力(mBar)",
+    "落粉轴扭矩(Nm)",
+    "落粉轴绝对位置",
+    "过滤压力(mBar)",
+    "进水压力1(Bar)",
+    "进水压力2(Bar)",
+    "铺粉器位置(mm)",
+    "铺粉器扭矩(Nm)",
+    "铺粉器速度(mm/s)",
+    "顶升扭矩(Nm)",
+    "风速(m/s)",
+    "风频(Hz)"
+  ],
+  "boolean_features": [
+    "前铺粉到达",
+    "单次铺粉运行",
+    "后铺粉到达",
+    "落粉闸板",
+    "铺粉器绝对位置运行"
+  ]
+}

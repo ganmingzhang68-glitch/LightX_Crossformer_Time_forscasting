@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "experiment_id": "D_129_history_plus_5_conditions_to_27",
+  "description": "Experiment C plus set wind speed as a restricted condition-only covariate.",
+  "expected_source_feature_count": 134,
+  "dynamic_feature_policy": "old_features_plus_named",
+  "dynamic_extra_features": ["打印层数"],
+  "condition_features": ["设松粉S", "设铺粉模式", "设前螺旋时长", "设后螺旋时长", "设风速"],
+  "categorical_condition_features": ["设铺粉模式"],
+  "categorical_values": {"设铺粉模式": [0, 1]},
+  "restricted_conditions": {
+    "设风速": "Within current selection data it is 4.5 on device 01 and 7.0 on devices 02/03, with no within-device variation; it may proxy device identity."
+  },
+  "target_contract": "selected_targets_27.json",
+  "device04_is_clean_external_test": false
+}
