@@ -1,11 +1,18 @@
 """Explicit plan/preflight/select/refit/evaluate04 commands. No automatic training."""
 from __future__ import annotations
 
+# Preserve direct script execution while keeping imports package-scoped.
+if __package__ in (None, ""):
+    import sys as _sys
+    from pathlib import Path as _Path
+    _sys.path.insert(0, str(_Path(__file__).resolve().parents[2]))
+    __package__ = "experiments.all90_latency_v1"
+
 import argparse
 from pathlib import Path
 import statistics
 
-from common import contract, code_identity, digest, file_hash, read_json, safe_new_output, write_json
+from .common import contract, code_identity, digest, file_hash, read_json, safe_new_output, write_json
 
 
 def plan(args):
@@ -18,8 +25,8 @@ def plan(args):
 
 
 def preflight(args):
-    from build_contract import build
-    from prepare import verify_schema
+    from .build_contract import build
+    from .prepare import verify_schema
     c = contract(args.contract)
     actual = build(args.root.resolve())
     if actual != c:
@@ -50,8 +57,8 @@ def reserve_run(output, budget, protected, resume):
 
 
 def select(args):
-    from data import Repository, Windows, split_jobs, fit_preprocessor
-    from training import train
+    from .data import Repository, Windows, split_jobs, fit_preprocessor
+    from .training import train
     c = contract(args.contract)
     repo = Repository(args.data_root, c)
     split = split_jobs(repo)
@@ -87,8 +94,8 @@ def verify_freeze(frozen, c, repo=None):
 
 
 def refit(args):
-    from data import Repository, Windows, fit_preprocessor
-    from training import train
+    from .data import Repository, Windows, fit_preprocessor
+    from .training import train
     c = contract(args.contract)
     repo = Repository(args.data_root, c)
     frozen = read_json(args.frozen)
@@ -112,7 +119,7 @@ def refit(args):
 
 
 def final_models(model_root, c, repo, device):
-    from training import load_model
+    from .training import load_model
     final = read_json(model_root / "final.json")
     if final["status"] != "complete":
         raise ValueError("Final runs are incomplete")
@@ -147,10 +154,10 @@ def final_models(model_root, c, repo, device):
 
 def evaluate04(args):
     import torch
-    from data import Repository, Windows
-    from training import loader
-    from metrics import evaluate
-    from compare import quality_summary
+    from .data import Repository, Windows
+    from .training import loader
+    from .metrics import evaluate
+    from .compare import quality_summary
     c = contract(args.contract)
     repo = Repository(args.data_root, c, external=True)
     device = torch.device(args.device)

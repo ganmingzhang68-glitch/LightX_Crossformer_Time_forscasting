@@ -1,5 +1,13 @@
 """Bounded AMP recovery: retry the same batch/RNG before any optimizer update."""
 from __future__ import annotations
+
+# Support both direct scripts and package imports.
+if __package__ in (None, ""):
+    import sys as _sys
+    from pathlib import Path as _Path
+    _sys.path.insert(0, str(_Path(__file__).resolve().parents[2]))
+    __package__ = "experiments.input_window_matrix_v1"
+
 import torch
 
 

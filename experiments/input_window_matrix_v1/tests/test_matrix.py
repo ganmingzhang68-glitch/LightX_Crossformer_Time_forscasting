@@ -9,13 +9,13 @@ import pandas as pd
 import pytest
 import torch
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from common import contract, catalog, digest, write_json, read_json, runtime_contract, selected_profiles, file_hash
-from data import Encoder, Windows, split_jobs, fit_preprocessor, apply_shared_cohort, event_channels
-from model import ForecastModel, grouped_loss
-from metrics import evaluate
-from training import loader
-from train_queue import make_plan, execute_queue, frozen_pair, exclusive_lock, verify_plan
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+from experiments.input_window_matrix_v1.common import contract, catalog, digest, write_json, read_json, runtime_contract, selected_profiles, file_hash
+from experiments.input_window_matrix_v1.data import Encoder, Windows, split_jobs, fit_preprocessor, apply_shared_cohort, event_channels
+from experiments.input_window_matrix_v1.model import ForecastModel, grouped_loss
+from experiments.input_window_matrix_v1.metrics import evaluate
+from experiments.input_window_matrix_v1.training import loader
+from experiments.input_window_matrix_v1.train_queue import make_plan, execute_queue, frozen_pair, exclusive_lock, verify_plan
 
 torch.set_num_threads(1)
 
@@ -35,7 +35,7 @@ def synthetic_repo():
             x[:, c["source_features"].index("平台到位")] = np.nan
             times = pd.date_range(f"2026-07-{k+1:02d}", periods=n, freq="2s", tz="UTC")
             meta = pd.DataFrame(dict(time_utc=times, segment_id=0, observed_mask=True, new_observed=True, new_age_seconds=0))
-            from prepare import common_windows
+            from experiments.input_window_matrix_v1.prepare import common_windows
             records[job] = dict(device=device, start=times[0].isoformat())
             values[job], rows[job], origins[job] = x, meta, common_windows(meta, c)
     repo = SimpleNamespace(c=c, records=records, values=values, rows=rows, origins=origins, manifest={"external_only": False})
@@ -231,9 +231,9 @@ def test_plan_mutation_and_exclusive_lock(tmp_path):
 
 
 def test_real_preparation_init_and_external_completion_barrier(tmp_path):
-    from train_queue import initialize
-    from evaluate04 import completed_queue
-    from data import Repository
+    from experiments.input_window_matrix_v1.train_queue import initialize
+    from experiments.input_window_matrix_v1.evaluate04 import completed_queue
+    from experiments.input_window_matrix_v1.data import Repository
     repo = synthetic_repo()
     source = tmp_path / "prepared"
     source.mkdir()

@@ -1,13 +1,21 @@
 """Read-only source fusion; writes a new job-sharded dataset, never trains."""
 from __future__ import annotations
 
+# Support both direct scripts and package imports.
+if __package__ in (None, ""):
+    import sys as _sys
+    from pathlib import Path as _Path
+    _sys.path.insert(0, str(_Path(__file__).resolve().parents[2]))
+    __package__ = "experiments.input_window_matrix_v1"
+
+
 import argparse
 from pathlib import Path
 import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
 
-from common import contract, digest, file_hash, read_json, safe_new_output, write_json
+from .common import contract, digest, file_hash, read_json, safe_new_output, write_json
 
 
 def numeric_snapshot(raw, c):
