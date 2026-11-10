@@ -154,3 +154,25 @@ def test_export_inference_runs_outside_repository_and_checks_input(tmp_path):
 def test_export_rejects_unknown_experiment(tmp_path):
     with pytest.raises(ValueError, match="Unknown experiment"):
         export_model(tmp_path/"trained", tmp_path/"bundle", "unknown")
+
+
+def test_portable_bundle_can_retain_exact_original_best_checkpoint(tmp_path):
+    checkpoint_fixture(tmp_path/"trained", "ALL90", "G4_300_10_60", "matrix")
+    export_model(tmp_path/"trained", tmp_path/"bundle")
+    bundle = tmp_path/"bundle"
+    shutil.copyfile(tmp_path/"trained/best.pt", bundle/"best.pt")
+    metadata = json.loads((bundle/"bundle.json").read_text(encoding="utf-8"))
+    metadata["files"].pop("weights.pt")
+    metadata["weights_path"] = "best.pt"
+    metadata["files"]["best.pt"] = hashlib.sha256((bundle/"best.pt").read_bytes()).hexdigest()
+    metadata.pop("bundle_sha")
+    metadata["bundle_sha"] = matrix_common.digest(metadata)
+    (bundle/"bundle.json").write_text(json.dumps(metadata), encoding="utf-8")
+    model = PortableModel(bundle, "cpu")
+    assert model.metadata["source_checkpoint_sha"] == metadata["files"]["best.pt"]
+    metadata["source_signature"] = "wrong"
+    metadata.pop("bundle_sha")
+    metadata["bundle_sha"] = matrix_common.digest(metadata)
+    (bundle/"bundle.json").write_text(json.dumps(metadata), encoding="utf-8")
+    with pytest.raises(ValueError, match="checkpoint metadata"):
+        PortableModel(bundle, "cpu")

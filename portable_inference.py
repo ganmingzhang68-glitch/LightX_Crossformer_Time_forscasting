@@ -27,7 +27,8 @@ class PortableModel:
             raise ValueError("Unsupported inference bundle")
         if m.get("bundle_sha") != digest({k: v for k, v in m.items() if k != "bundle_sha"}):
             raise ValueError("Bundle metadata checksum mismatch")
-        required_files = {"weights.pt", "predict.py", "forecast_windows.py", "runtime/__init__.py",
+        weights_path = m.get("weights_path", "weights.pt")
+        required_files = {weights_path, "predict.py", "forecast_windows.py", "runtime/__init__.py",
                           "runtime/model.py", "runtime/encoding.py", "runtime/crossformer.py"}
         if not required_files <= set(m["files"]):
             raise ValueError("Incomplete inference bundle")
@@ -63,7 +64,16 @@ class PortableModel:
         model_type = importlib.import_module(package + ".model").ForecastModel
         self.encoder = encoder_type(self.c, self.pre, self.profile) if self.profile else encoder_type(self.c, self.pre)
         self.model = model_type(m["model_contract"], m["group"], self.pre, m["params"]).to(self.device)
-        state = torch.load(self.root / "weights.pt", map_location="cpu", weights_only=True)
+        state = torch.load(self.root / weights_path, map_location="cpu", weights_only=True)
+        # Historical releases retain the exact original best.pt bytes and checksum.
+        # Validate its signed metadata before selecting the nested tensor state.
+        if "model" in state:
+            expected = dict(contract=m["model_contract"], group=m["group"], pre=self.pre,
+                            params=m["params"], epoch=m["epoch"], code_sha=m["source_code_sha"],
+                            signature=m["source_signature"])
+            if any(state.get(k) != value for k, value in expected.items()):
+                raise ValueError("Original checkpoint metadata differs from published bundle")
+            state = state["model"]
         self.model.load_state_dict(state, strict=True)
         self.model.eval()
 

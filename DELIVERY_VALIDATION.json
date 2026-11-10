@@ -4,10 +4,10 @@
   "status": "passed_cpu_delivery_checks",
   "tests": {
     "command": "python -m pytest -p no:cacheprovider -q",
-    "passed": 72,
+    "passed": 73,
     "failed": 0,
     "original_tests": 48,
-    "delivery_tests": 24,
+    "delivery_tests": 25,
     "optimizer_steps": 0
   },
   "matrix_code_sha": "1439129bf985bcac33704f2f3459c4c2724b9e878f01dc2e9214e6665a4435b3",

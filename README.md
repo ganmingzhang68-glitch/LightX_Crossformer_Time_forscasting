@@ -1,5 +1,7 @@
 # LightX Crossformer 时间序列预测
 
+ALL90 的 G1–G4 正式训练权重现已发布：[12 套模型与使用说明](https://github.com/ganmingzhang68-glitch/LightX_Crossformer_Time_forscasting/tree/experiment/all90-latency-4groups/models/all90_20261110)。每组包含 3 个种子，输入为原128+新增90字段，输出原128字段，空档10秒。每套包含原始 `best.pt`、匹配的预处理器、特征顺序、配置及独立推理代码；可按说明下载后执行包内 `predict.py`，也可使用本分支的 `predict.py --bundle <模型目录>`。旧训练权重必须使用这些配套文件，不能用当前训练代码签名替换其原始签名。
+
 当前分支已统一可执行预测和训练入口为 **10秒空档**：跳过5个2秒采样点，首个标签位于最后输入时刻后的第12秒。历史A/B/C/D的30秒窗口必须重建，见 [迁移说明](experiments/latency_abcd_27/README.md)。
 
 `artifacts/` 中的Epoch45仍是历史无空档权重，不能变成10秒空档模型。`predict.py` 会拒绝它，必须传入重新训练并导出的10秒空档checkpoint及对应配置。下文Epoch45指标和原始任务说明仅描述历史发布包，不代表当前10秒空档模型的训练成绩。
