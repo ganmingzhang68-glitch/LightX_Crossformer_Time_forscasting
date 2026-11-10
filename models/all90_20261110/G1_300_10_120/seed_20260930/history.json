@@ -1,0 +1,200 @@
+[
+  {
+    "epoch": 1,
+    "train_loss": 0.030620708568608736,
+    "validation_objective": null,
+    "epoch_seconds": 730.6879298390122,
+    "amp_retries": 0,
+    "fp32_fallback_batches": 0,
+    "peak_allocated_bytes": 4737203712
+  },
+  {
+    "epoch": 2,
+    "train_loss": 0.02386360355397578,
+    "validation_objective": null,
+    "epoch_seconds": 761.4508493600879,
+    "amp_retries": 0,
+    "fp32_fallback_batches": 0,
+    "peak_allocated_bytes": 4737203712
+  },
+  {
+    "epoch": 3,
+    "train_loss": 0.02163011606067949,
+    "validation_objective": null,
+    "epoch_seconds": 758.7541610880289,
+    "amp_retries": 0,
+    "fp32_fallback_batches": 0,
+    "peak_allocated_bytes": 4737203712
+  },
+  {
+    "epoch": 4,
+    "train_loss": 0.020442372697330798,
+    "validation_objective": null,
+    "epoch_seconds": 752.4489085979294,
+    "amp_retries": 0,
+    "fp32_fallback_batches": 0,
+    "peak_allocated_bytes": 4737203712
+  },
+  {
+    "epoch": 5,
+    "train_loss": 0.01963062789789272,
+    "validation_objective": null,
+    "epoch_seconds": 758.2895530930255,
+    "amp_retries": 0,
+    "fp32_fallback_batches": 0,
+    "peak_allocated_bytes": 4737203712
+  },
+  {
+    "epoch": 6,
+    "train_loss": 0.019007130914390862,
+    "validation_objective": null,
+    "epoch_seconds": 733.0915529310005,
+    "amp_retries": 0,
+    "fp32_fallback_batches": 0,
+    "peak_allocated_bytes": 4737203712
+  },
+  {
+    "epoch": 7,
+    "train_loss": 0.018515571425940198,
+    "validation_objective": null,
+    "epoch_seconds": 753.078386062989,
+    "amp_retries": 0,
+    "fp32_fallback_batches": 0,
+    "peak_allocated_bytes": 4737203712
+  },
+  {
+    "epoch": 8,
+    "train_loss": 0.01804920472427064,
+    "validation_objective": null,
+    "epoch_seconds": 736.3009365249891,
+    "amp_retries": 0,
+    "fp32_fallback_batches": 0,
+    "peak_allocated_bytes": 4737203712
+  },
+  {
+    "epoch": 9,
+    "train_loss": 0.017624480543865395,
+    "validation_objective": null,
+    "epoch_seconds": 728.7939104170073,
+    "amp_retries": 0,
+    "fp32_fallback_batches": 0,
+    "peak_allocated_bytes": 4737203712
+  },
+  {
+    "epoch": 10,
+    "train_loss": 0.017254782318686417,
+    "validation_objective": null,
+    "epoch_seconds": 745.8454022110673,
+    "amp_retries": 0,
+    "fp32_fallback_batches": 0,
+    "peak_allocated_bytes": 4737203712
+  },
+  {
+    "epoch": 11,
+    "train_loss": 0.01690376594051347,
+    "validation_objective": null,
+    "epoch_seconds": 749.917682047002,
+    "amp_retries": 0,
+    "fp32_fallback_batches": 0,
+    "peak_allocated_bytes": 4737203712
+  },
+  {
+    "epoch": 12,
+    "train_loss": 0.016636015778721452,
+    "validation_objective": null,
+    "epoch_seconds": 758.0568283479661,
+    "amp_retries": 0,
+    "fp32_fallback_batches": 0,
+    "peak_allocated_bytes": 4737203712
+  },
+  {
+    "epoch": 13,
+    "train_loss": 0.016395104540656066,
+    "validation_objective": null,
+    "epoch_seconds": 766.7142210530583,
+    "amp_retries": 0,
+    "fp32_fallback_batches": 0,
+    "peak_allocated_bytes": 4737203712
+  },
+  {
+    "epoch": 14,
+    "train_loss": 0.016212142615555942,
+    "validation_objective": null,
+    "epoch_seconds": 726.3013990360778,
+    "amp_retries": 0,
+    "fp32_fallback_batches": 0,
+    "peak_allocated_bytes": 4737203712
+  },
+  {
+    "epoch": 15,
+    "train_loss": 0.01604471932477322,
+    "validation_objective": null,
+    "epoch_seconds": 767.7771490290761,
+    "amp_retries": 0,
+    "fp32_fallback_batches": 0,
+    "peak_allocated_bytes": 4737203712
+  },
+  {
+    "epoch": 16,
+    "train_loss": 0.015904848511867162,
+    "validation_objective": null,
+    "epoch_seconds": 767.1802140349755,
+    "amp_retries": 0,
+    "fp32_fallback_batches": 0,
+    "peak_allocated_bytes": 4737203712
+  },
+  {
+    "epoch": 17,
+    "train_loss": 0.015786862568445005,
+    "validation_objective": null,
+    "epoch_seconds": 752.2166355380323,
+    "amp_retries": 0,
+    "fp32_fallback_batches": 0,
+    "peak_allocated_bytes": 4737203712
+  },
+  {
+    "epoch": 18,
+    "train_loss": 0.015687381920132096,
+    "validation_objective": null,
+    "epoch_seconds": 746.4013574699638,
+    "amp_retries": 0,
+    "fp32_fallback_batches": 0,
+    "peak_allocated_bytes": 4737203712
+  },
+  {
+    "epoch": 19,
+    "train_loss": 0.015618860699072278,
+    "validation_objective": null,
+    "epoch_seconds": 754.1581383120501,
+    "amp_retries": 0,
+    "fp32_fallback_batches": 0,
+    "peak_allocated_bytes": 4737203712
+  },
+  {
+    "epoch": 20,
+    "train_loss": 0.0155562977703491,
+    "validation_objective": null,
+    "epoch_seconds": 766.5218589960132,
+    "amp_retries": 0,
+    "fp32_fallback_batches": 0,
+    "peak_allocated_bytes": 4737203712
+  },
+  {
+    "epoch": 21,
+    "train_loss": 0.015518941603638339,
+    "validation_objective": null,
+    "epoch_seconds": 768.9316028361209,
+    "amp_retries": 0,
+    "fp32_fallback_batches": 0,
+    "peak_allocated_bytes": 4737203712
+  },
+  {
+    "epoch": 22,
+    "train_loss": 0.015497656341165362,
+    "validation_objective": null,
+    "epoch_seconds": 739.5201477638911,
+    "amp_retries": 0,
+    "fp32_fallback_batches": 0,
+    "peak_allocated_bytes": 4737203712
+  }
+]

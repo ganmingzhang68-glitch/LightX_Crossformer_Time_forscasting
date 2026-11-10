@@ -1,0 +1,19 @@
+{
+  "group": "G2_180_10_60",
+  "seed": 20260928,
+  "best_epoch": 44,
+  "best_score": null,
+  "epochs_completed": 44,
+  "signature": "9b24d583f06228b279df4d81bbbb805344c31634aa717bd18c167aad09fb2314",
+  "train_windows": {
+    "01-X450-1": 89344,
+    "02-X450-2": 89344,
+    "03-X450-3": 89344
+  },
+  "validation_windows": {},
+  "raw_input_fields": 218,
+  "added_fields": 90,
+  "training_seconds": 30356.50643831212,
+  "precision": "fp32",
+  "parameter_count": 4220385
+}

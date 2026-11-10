@@ -1,0 +1,27 @@
+{
+  "params": {
+    "d_model": 128,
+    "n_heads": 2,
+    "e_layers": 3,
+    "d_ff": 512,
+    "factor": 3,
+    "dropout": 0.05,
+    "crossformer_seg_len": 10,
+    "crossformer_win_size": 2,
+    "revin_affine": true,
+    "condition_hidden": 64,
+    "learning_rate": 0.0001,
+    "weight_decay": 1e-05,
+    "batch_size": 32
+  },
+  "group": "G1_300_10_120",
+  "context_points": 150,
+  "forecast_gap_points": 5,
+  "forecast_gap_seconds": 10,
+  "prediction_points": 60,
+  "cadence_seconds": 2,
+  "seed": 20260928,
+  "epoch": 22,
+  "checkpoint_sha256": "872bfcfa9f77f7be9eed048c97efaead13513f9f07722c0800ff557943cc84a1",
+  "parameter_count": 4628193
+}

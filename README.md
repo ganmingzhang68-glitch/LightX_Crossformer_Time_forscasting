@@ -1,3 +1,5 @@
+> **2026-11-10：ALL90正式权重已发布。** G1–G4各三个种子，共12套218输入→原128输出模型，包含原始best.pt、scaler、类别词表、特征顺序、窗口配置、训练记录和独立推理脚本。下载与用法见 [models/all90_20261110/README.md](models/all90_20261110/README.md)。ALL90请使用模型目录中的predict.py；下文根目录发布包仍是旧Epoch45模型。
+
 # LightX Crossformer 时间序列预测
 
 这是用于 LightX SLM 3D 打印机 PLC 传感器的 Crossformer 部署项目。仓库包含最佳模型权重、固定特征契约、训练集归一化参数、原始 InfluxDB Parquet 预处理脚本和推理脚本，可以在其他同构设备上执行与训练阶段一致的预测任务。
