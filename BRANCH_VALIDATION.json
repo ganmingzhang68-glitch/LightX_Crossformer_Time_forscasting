@@ -1,20 +1,20 @@
 {
   "checked_date": "2026-11-10",
   "timezone": "Asia/Shanghai",
-  "branch": "main",
-  "base_sha": "61df7b9d043c145a3a78f333a6f94e0793ac8745",
+  "branch": "feature/custom-feature-manifest",
+  "base_sha": "0d74a342619408ab1f9189ed09494c040c148580",
   "status": "passed_cpu_portability_checks",
   "tests": {
-    "branch": "main",
+    "branch": "custom",
     "returncode": 0,
-    "tests": 40,
+    "tests": 83,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
-    "seconds": 56.67,
-    "passed": 40
+    "seconds": 112.33,
+    "passed": 83
   },
-  "cli_checks": 21,
+  "cli_checks": 22,
   "all_cli_checks_passed": true,
   "environment": {
     "numpy": "1.26.4",
@@ -32,7 +32,10 @@
     "Task boundaries and gap timestamp regression checks",
     "Published Epoch45 exact checkpoint load with native Torch backbone",
     "ALL90 G1-G4 export and standalone numerical roundtrip",
-    "Old128 and new90 source fusion to218-column inference table"
+    "Old128 and new90 source fusion to218-column inference table",
+    "Sequential queue failure/resume/completion checks",
+    "Matrix G1-G4 encoder/export numerical roundtrips",
+    "Custom ordered feature manifest and example plan"
   ],
   "training_started": false,
   "optimizer_steps": 0,
@@ -50,5 +53,5 @@
     "all_file_checksums_passed": true,
     "packaging_change": "Archived training_source attributes changed to preserve exact file bytes on checkout; checksum list updated"
   },
-  "actual_published_G4_cpu_smoke": "Executed via root CLI"
+  "actual_published_G4_cpu_smoke": "Same root runtime and same published bundle as the executed main-branch check"
 }

@@ -88,6 +88,8 @@ python experiments/input_window_matrix_v1/train_queue.py status --output /runs/m
 
 队列会逐个执行所有方案×G1–G4×种子的选择训练，再逐个执行最终重训。出错即停，完成且通过校验的模型不会重复训练。计划和初始化不训练；正式`run`需要CUDA。共同起点会按所选方案取交集，所以改变方案集合也会改变可比较的数据口径。
 
+可直接检查仓库示例：`python experiments/input_window_matrix_v1/train_queue.py plan --feature-manifest examples/custom_feature_manifest.json`，示例输入131个唯一业务字段，输出128。
+
 仅自定义分支支持额外参数 `--feature-manifest /path/to/my_features.json`，在`plan`和`init`时传入，`run`读取冻结计划。可重复传多份清单。完整例子见该分支的 `experiments/input_window_matrix_v1/README.md`；简易`features`会全部送入动态分支，高级`dynamic/conditions`可以分别指定角色。清单必须保留原128动态字段，不能含重复或未知名称，顺序会写入训练契约和模型包。
 
 连续量仅用训练任务拟合尺度；布尔量以数值进入主干，反归一化后按0.5阈值输出。类别字段建议放条件分支，用训练词表和embedding；检测日期转换为该快照时已知的`log1p(检测年龄天数)`，未来或无效日期及对应结果置缺失。新增缺失用掩码表达，质量/事件通道只用历史，不算额外业务字段。单位或物理含义不明时不能合并同名/近义字段。

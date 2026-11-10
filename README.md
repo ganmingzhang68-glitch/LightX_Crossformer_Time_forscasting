@@ -1,6 +1,6 @@
-# LightX Crossformer：main
+# LightX Crossformer：feature/custom-feature-manifest
 
-本分支用于：**ALL90训练与已发布模型，另保留27输出历史实验入口**。
+本分支用于：**内置与自定义特征清单×G1–G4，统一原128输出，串行训练**。
 
 **2026-11-10独立使用补齐：** 安装、原始数据转换、特征处理、训练、恢复及推理的完整步骤见 [USAGE.md](USAGE.md)。其他人不需要作者电脑路径或外部模型库。检查入口为 `python tools/check_install.py --training --models`，测试入口为 `python -m pytest -q`；本次验证不启动正式训练。
 
@@ -13,11 +13,31 @@
 
 ---
 
-> **2026-11-10：ALL90正式权重已发布。** G1–G4各三个种子，共12套218输入→原128输出模型，包含原始best.pt、scaler、类别词表、特征顺序、窗口配置、训练记录和独立推理脚本。下载与用法见 [models/all90_20261110/README.md](models/all90_20261110/README.md)。ALL90请使用模型目录中的predict.py；下文根目录发布包仍是旧Epoch45模型。
-
 # LightX Crossformer 时间序列预测
 
+ALL90 的 G1–G4 正式训练权重现已发布：[12 套模型与使用说明](https://github.com/ganmingzhang68-glitch/LightX_Crossformer_Time_forscasting/tree/experiment/all90-latency-4groups/models/all90_20261110)。每组包含 3 个种子，输入为原128+新增90字段，输出原128字段，空档10秒。每套包含原始 `best.pt`、匹配的预处理器、特征顺序、配置及独立推理代码；可按说明下载后执行包内 `predict.py`，也可使用本分支的 `predict.py --bundle <模型目录>`。旧训练权重必须使用这些配套文件，不能用当前训练代码签名替换其原始签名。
+
+当前分支已统一可执行预测和训练入口为 **10秒空档**：跳过5个2秒采样点，首个标签位于最后输入时刻后的第12秒。历史A/B/C/D的30秒窗口必须重建，见 [迁移说明](experiments/latency_abcd_27/README.md)。
+
+`artifacts/` 中的Epoch45仍是历史无空档权重，不能变成10秒空档模型。`predict.py` 会拒绝它，必须传入重新训练并导出的10秒空档checkpoint及对应配置。下文Epoch45指标和原始任务说明仅描述历史发布包，不代表当前10秒空档模型的训练成绩。
+
+本分支现已支持完整仓库的统一测试和新模型独立导出。安装开发依赖并检查整个仓库：
+
+```bash
+python -m pip install -r requirements-dev.txt
+python -m pytest -q
+```
+
+代码签名只计算实际运行代码、主干和契约，排除虚拟环境、测试目录、缓存和输出，并统一LF/CRLF差异。请在仓库根目录创建 `.venv`；初始化后仍不得更改运行代码、契约、数据或训练预算。签名算法和包结构已更新，旧队列需在原代码版本中恢复；本版本的新实验应创建新队列，不能手改旧签名。
+
 这是用于 LightX SLM 3D 打印机 PLC 传感器的 Crossformer 部署项目。仓库包含最佳模型权重、固定特征契约、训练集归一化参数、原始 InfluxDB Parquet 预处理脚本和推理脚本，可以在其他同构设备上执行与训练阶段一致的预测任务。
+
+仓库现在有两套用途：
+
+- 根目录的 `artifacts/`、`prepare_influx.py` 和 `predict.py` 用于已经发布的固定128输入、128输出模型推理。
+- [`experiments/input_window_matrix_v1/`](experiments/input_window_matrix_v1/) 用于重新训练不同输入特征组合，并在G1–G4四种时间窗口下统一预测原128特征。自定义特征清单功能位于 `feature/custom-feature-manifest` 分支。
+
+两套流程的模型、特征契约和预处理器不能混用。实验训练产生的新checkpoint不会覆盖根目录发布模型。
 
 ## 预测任务
 
@@ -79,6 +99,8 @@
 ├── FEATURES.md                    # 128个训练特征的完整说明
 ├── crossformer/
 │   └── model.py                # 精简、可独立加载权重的 Crossformer
+├── experiments/
+│   └── input_window_matrix_v1/ # 多输入方案、自定义特征、G1–G4训练及04评估
 ├── prepare_influx.py           # Influx 长表 Parquet → 128 特征宽表
 ├── predict.py                  # 最新窗口或滚动预测
 └── validate_bundle.py          # checkpoint 严格加载及前向冒烟测试
@@ -114,6 +136,61 @@ python validate_bundle.py
 ```
 
 CPU 可以推理；如果安装的 PyTorch 支持 CUDA，默认会自动使用 GPU。
+
+## 训练新的输入特征模型
+
+训练代码不在默认 `main` 分支。使用自定义特征清单时应明确切换分支：
+
+```bash
+git clone https://github.com/ganmingzhang68-glitch/LightX_Crossformer_Time_forscasting.git
+cd LightX_Crossformer_Time_forscasting
+git switch feature/custom-feature-manifest
+
+cd experiments/input_window_matrix_v1
+python -m pip install -r requirements.txt
+python -m pytest tests -q
+```
+
+训练任务固定遵循以下约束：
+
+- 输入存储契约为原128字段加新增90字段，共218个有序源字段；每个模型只选择其中一部分。
+- 自定义模型至少包含原128字段，因为模型使用这128个字段的历史值完成末值残差预测。
+- 输出始终为原128字段，其中56个连续量、72个布尔量。
+- 每个输入方案都覆盖G1–G4四种历史长度和预测长度。
+- 设备01/02/03用于选轮次和最终训练；设备04只用于全部模型完成后的外部评估。
+- `plan` 和 `init` 不训练；只有显式执行 `train_queue.py run` 才会更新模型权重，并且需要CUDA。
+
+训练数据不会随Git仓库发布。训练前必须准备旧128数据集和新增90字段宽表，再由实验目录的 `prepare.py` 融合成218字段、按打印任务分片的数据集。完整的数据格式、特征类型处理、自定义清单格式、训练与恢复命令见：
+
+[`experiments/input_window_matrix_v1/README.md`](experiments/input_window_matrix_v1/README.md)
+
+## 导出与运行新训练模型
+
+完成训练后，将最终模型目录导出为独立包。导出会核查checkpoint、字段契约和代码身份，复制原模型与编码器，并验证导出前后的预测数值一致。输出目录必须全新且位于仓库和训练源目录之外。
+
+```bash
+# 在仓库根目录运行；该命令不会训练
+python export_model.py \
+  --model-dir /runs/matrix/models/ALL90/G4_300_10_60/seed_20260928 \
+  --output /exports/all90_g4 --experiment matrix
+
+python predict.py --bundle /exports/all90_g4 \
+  --input /data/aligned_numeric.parquet --output /results/latest.parquet \
+  --mode latest --device cpu
+```
+
+ALL90独立实验的模型使用 `--experiment all90`；预定义方案和自定义方案均使用 `matrix`。模型输出始终为原128字段。导出包包含权重、完整字段和预处理契约、冻结的模型/编码器、独立预测脚本、依赖清单和校验值。将整个包复制到另一台机器后，可以不带训练仓库运行：
+
+```bash
+cd /exports/all90_g4
+python -m pip install -r requirements.txt
+python predict.py --input /data/aligned_numeric.parquet \
+  --output /results/rolling.parquet --mode rolling --include-target --device cpu
+```
+
+输入是经过训练时相同对齐和类型处理的宽表CSV/Parquet，需要UTC时间、原128字段及所选新增字段；这不是原始Influx长表。日期字段应已转换为训练时的 `log1p` 年龄。带质量或事件分支的模型还必须提供 `observed_mask`、`new_observed`、`new_age_seconds`，不允许静默伪造质量量。建议保留 `device_id`、`job_id`、`segment_id`。预测和实际标签从最后输入后的+12秒开始；G1/G3到+130秒，G2/G4到+70秒。外部设备不能重新拟合scaler或类别词表。
+
+新实验的 `best.pt` 应通过上述导出流程使用，不能直接当作根目录旧发布模型的纯state_dict文件。旧Epoch45权重、历史30秒模型和代码签名不符的checkpoint不能通过修改配置冒充10秒模型。
 
 ## 输入数据
 
@@ -155,13 +232,15 @@ python prepare_influx.py \
 
 ## 预测最新 10 秒
 
-使用最后 150 个连续点预测其后的 5 个点：
+当前入口使用最后150个连续点，跳过5点，再预测5点。新模型配置必须声明 `forecast_gap_points: 5`、`forecast_gap_seconds: 10`、`cadence_seconds: 2` 和匹配的 `checkpoint_sha256`。模型应以同样空档训练；不能只修改旧模型配置或输出时间戳。
 
 ```bash
 python predict.py \
   --input outputs/external_device_prepared.parquet \
   --output outputs/latest_prediction.csv \
-  --mode latest
+  --mode latest \
+  --checkpoint /path/to/gap10/checkpoint.pth --config /path/to/gap10/model_config.json \
+  --manifest /path/to/gap10/feature_manifest.json --scaler /path/to/gap10/scaler.json
 ```
 
 输出包含：
@@ -173,7 +252,7 @@ python predict.py \
 
 ## 从头到尾滚动预测
 
-每 10 秒移动一次 300 秒窗口，并预测下一个 10 秒：
+每10秒移动一次300秒输入窗口，跳过10秒空档，再预测10秒。提供 `job_id`、`segment_id`、`device_id` 时，入口会先按身份分组，再排序去重与划分连续段，窗口不会跨身份边界。没有这些身份列时，只能按时间间断划段，调用方应确保输入已按任务隔离。
 
 ```bash
 python predict.py \
@@ -182,7 +261,9 @@ python predict.py \
   --mode rolling \
   --stride 5 \
   --batch-size 64 \
-  --include-target
+  --include-target \
+  --checkpoint /path/to/gap10/checkpoint.pth --config /path/to/gap10/model_config.json \
+  --manifest /path/to/gap10/feature_manifest.json --scaler /path/to/gap10/scaler.json
 ```
 
 `--include-target` 会为已存在于输入文件中的未来点增加 `actual__特征名` 列，便于计算外部设备指标。部署到实时流时使用 `latest` 模式，不需要真实未来值。
