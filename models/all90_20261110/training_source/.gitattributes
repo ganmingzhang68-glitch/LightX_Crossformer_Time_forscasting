@@ -1,1 +1,2 @@
-* text eol=lf
+# Preserve archived source bytes; do not override the parent model policy.
+* -text

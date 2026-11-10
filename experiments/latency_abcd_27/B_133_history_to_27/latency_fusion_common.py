@@ -16,6 +16,10 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader, Dataset
 
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from window_contract import validate_manifest, validate_geometry, validate_windows
+
+
 def set_seed(seed: int) -> None:
     random.seed(seed)
     np.random.seed(seed)
@@ -35,6 +39,7 @@ class ExperimentRepository:
         self.data_root = data_root.resolve()
         manifest_path = self.data_root / "feature_manifest.json"
         self.manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        validate_manifest(self.manifest)
         self.feature_names = list(self.manifest["feature_order"])
         self.old_features = list(self.manifest["old_features"])
         self.added_features = list(self.manifest["added_features"])
@@ -64,7 +69,8 @@ class ExperimentRepository:
         self.windows: dict[str, pd.DataFrame] = {}
         for device in self.devices:
             device_dir = self.data_root / "devices" / device
-            frame = pd.read_parquet(device_dir / "rows.parquet", columns=self.feature_names)
+            rows = pd.read_parquet(device_dir / "rows.parquet")
+            frame = rows[self.feature_names]
             values = frame.to_numpy(dtype=np.float32, copy=True)
             if not np.isfinite(values).all():
                 raise ValueError(f"Non-finite feature values for {device}")
@@ -77,6 +83,7 @@ class ExperimentRepository:
                     "future_end_row_exclusive",
                 ],
             )
+            validate_windows(windows, rows, device)
             self.raw_values[device] = values
             self.windows[device] = windows
 
@@ -115,6 +122,7 @@ class WindowDataset(Dataset):
         future_ends: list[np.ndarray] = []
         selected_counts: dict[str, int] = {}
         for code, device in enumerate(devices):
+            validate_geometry(windows[device], len(scaled_values[device]))
             frame = windows[device]
             positions = evenly_spaced_indices(len(frame), target)
             selected = frame.iloc[positions]
@@ -245,34 +253,9 @@ class CoreAuxiliaryHuberLoss(nn.Module):
         return self.forward_with_components(prediction, target)[0]
 
 
-def build_model(library_root: Path, params: dict):
-    library_root = library_root.resolve()
-    if str(library_root) not in sys.path:
-        sys.path.insert(0, str(library_root))
-    from models.Crossformer import Model
-
-    d_model = int(params["d_model"])
-    n_heads = int(params["n_heads"])
-    if d_model % n_heads:
-        raise ValueError("d_model must be divisible by n_heads")
-    args = SimpleNamespace(
-        enc_in=133,
-        seq_len=150,
-        pred_len=60,
-        task_name="long_term_forecast",
-        d_model=d_model,
-        n_heads=n_heads,
-        e_layers=int(params["e_layers"]),
-        d_ff=int(params["d_ff"]),
-        factor=int(params["factor"]),
-        dropout=float(params["dropout"]),
-        crossformer_seg_len=int(params["crossformer_seg_len"]),
-        crossformer_win_size=2,
-        use_revin=True,
-        revin_affine=bool(params["revin_affine"]),
-        residual_forecast=True,
-    )
-    return Model(args).float()
+def build_model(library_root, params: dict):
+    from backbone import build_backbone
+    return build_backbone(params, 133)
 
 
 def make_loader(

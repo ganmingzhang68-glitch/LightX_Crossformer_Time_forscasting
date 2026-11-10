@@ -23,7 +23,7 @@ def main() -> None:
         description="Train the final Crossformer with 133 inputs and 27 selected outputs."
     )
     parser.add_argument("--data-root", type=Path, required=True)
-    parser.add_argument("--library-root", type=Path, required=True)
+    parser.add_argument("--library-root", type=Path, default=None, help="Deprecated compatibility option; the repository backbone is always used")
     parser.add_argument("--targets", type=Path, required=True)
     parser.add_argument("--best-trial", type=Path, required=True)
     parser.add_argument("--confirmation-result", type=Path)
@@ -95,7 +95,7 @@ def main() -> None:
     if device.type != "cuda":
         raise RuntimeError("Final 133-to-27 training requires CUDA")
     model = SelectedOutputCrossformer(
-        args.library_root.resolve(), params, contract.input_indices
+        args.library_root, params, contract.input_indices
     ).to(device)
     criterion = GroupedTargetHuberLoss(
         float(params["huber_delta"]), float(params["continuous_loss_weight"])
@@ -143,6 +143,8 @@ def main() -> None:
         history.append(row)
         print(json.dumps(row, ensure_ascii=False), flush=True)
 
+    # A model release must retain its exact source order and 10s window contract.
+    (output / "feature_manifest.json").write_text(json.dumps(repository.manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     torch.save(model.state_dict(), output / "model.pth")
     np.savez_compressed(output / "scaler.npz", mean=mean, scale=scale)
     config = {
@@ -154,6 +156,9 @@ def main() -> None:
         "train_devices": list(train_devices),
         "train_windows": len(train_dataset),
         "train_windows_by_device": train_dataset.selected_counts,
+        "forecast_gap_seconds": 10,
+        "forecast_gap_points": 5,
+        "cadence_seconds": 2,
         "input_channels": 133,
         "input_feature_order": repository.feature_names,
         "output_channels": 27,

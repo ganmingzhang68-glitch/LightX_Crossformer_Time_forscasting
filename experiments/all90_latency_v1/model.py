@@ -1,9 +1,16 @@
 """130 dynamic histories + every added field's absolute history -> old128."""
 from __future__ import annotations
 
+# Preserve direct script execution while keeping imports package-scoped.
+if __package__ in (None, ""):
+    import sys as _sys
+    from pathlib import Path as _Path
+    _sys.path.insert(0, str(_Path(__file__).resolve().parents[2]))
+    __package__ = "experiments.all90_latency_v1"
+
 import torch
 from torch import nn
-from vendor.crossformer import Crossformer, CrossformerConfig
+from .vendor.crossformer import Crossformer, CrossformerConfig
 
 
 class ForecastModel(nn.Module):

@@ -66,7 +66,7 @@ def main() -> None:
     here = Path(__file__).resolve().parent
     parser = argparse.ArgumentParser(description="Tune one self-contained A/B/C/D experiment.")
     parser.add_argument("--data-root", type=Path, required=True)
-    parser.add_argument("--library-root", type=Path, required=True)
+    parser.add_argument("--library-root", type=Path, default=None, help="Deprecated compatibility option; the repository backbone is always used")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--trials", type=int, default=8)
     parser.add_argument("--epochs", type=int, default=5)
@@ -126,7 +126,7 @@ def main() -> None:
         results = []
         try:
             for index, fold_name in enumerate(FOLDS):
-                result = train_fold(repository, fold_data[fold_name], args.library_root.resolve(),
+                result = train_fold(repository, fold_data[fold_name], args.library_root,
                     params, trial_dir / fold_name, args.epochs, min(args.patience, args.epochs),
                     args.num_workers, args.seed + trial.number * 100 + index, not args.no_amp)
                 results.append(result)

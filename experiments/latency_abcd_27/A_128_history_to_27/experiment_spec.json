@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "experiment_id": "A_128_history_to_27",
   "description": "Old 128 historical channels predict the selected 27 targets.",
   "expected_source_feature_count": 133,
@@ -7,5 +7,10 @@
   "condition_features": [],
   "categorical_condition_features": [],
   "target_contract": "selected_targets_27.json",
-  "device04_is_clean_external_test": false
+  "device04_is_clean_external_test": false,
+  "context_points": 150,
+  "forecast_gap_points": 5,
+  "forecast_gap_seconds": 10,
+  "cadence_seconds": 2,
+  "prediction_points": 60
 }
